@@ -1,18 +1,80 @@
-const { AwsCdkConstructLibrary } = require('projen');
-const project = new AwsCdkConstructLibrary({
-  author: 'Brandon Miller',
-  authorAddress: 'brandon@digital-reboot.com',
-  cdkVersion: '1.95.2',
-  defaultReleaseBranch: 'main',
-  name: 'cdk-library-aws-organization',
-  repositoryUrl: 'https://github.com/brandon/cdk-library-aws-organization.git',
-
-  // cdkDependencies: undefined,      /* Which AWS CDK modules (those that start with "@aws-cdk/") does this library require when consumed? */
-  // cdkTestDependencies: undefined,  /* AWS CDK modules required for testing. */
-  // deps: [],                        /* Runtime dependencies of this module. */
-  // description: undefined,          /* The description is just a string that helps people understand the purpose of the package. */
-  // devDeps: [],                     /* Build dependencies for this module. */
-  // packageName: undefined,          /* The "name" in package.json. */
-  // release: undefined,              /* Add release management to this project. */
+const { awscdk, javascript } = require('projen');
+const project = new awscdk.AwsCdkConstructLibrary({
+  author: 'Renovo Solutions',
+  authorAddress: 'webmaster+cdk@renovo1.com',
+  cdkVersion: '2.3.0',
+  defaultReleaseBranch: 'master',
+  name: '@renovosolutions/cdk-library-aws-organization',
+  description: 'AWS CDK Construct Library to manage specific AWS Organization resources',
+  repositoryUrl: 'https://github.com/RenovoSolutions/cdk-library-aws-organization.git',
+  keywords: [
+    'cdk',
+    'aws-cdk',
+    'aws-cdk-construct',
+    'projen',
+  ],
+  depsUpgrade: true,
+  depsUpgradeOptions: {
+    workflowOptions: {
+      labels: ['auto-approve', 'deps-upgrade'],
+    },
+  },
+  githubOptions: {
+    mergify: true,
+    mergifyOptions: {
+      rules: [
+        {
+          name: 'Automatically approve dependency upgrade PRs if they pass build',
+          actions: {
+            review: {
+              type: 'APPROVE',
+              message: 'Automatically approved dependency upgrade PR',
+            },
+          },
+          conditions: [
+            'label=auto-approve',
+            'label=deps-upgrade',
+            '-label~=(do-not-merge)',
+            'status-success=build',
+            'author=github-actions[bot]',
+            'title="chore(deps): upgrade dependencies"',
+          ],
+        },
+      ],
+    },
+    pullRequestLintOptions: {
+      semanticTitle: true,
+      semanticTitleOptions: {
+        types: [
+          'chore',
+          'docs',
+          'feat',
+          'fix',
+          'ci',
+          'refactor',
+          'test',
+        ],
+      },
+    },
+  },
+  releaseToNpm: true,
+  npmAccess: javascript.NpmAccess.PUBLIC,
+  releaseWorkflow: true,
+  docgen: true,
+  eslint: true,
+  publishToPypi: {
+    distName: 'renovosolutions.aws-cdk-aws-organization',
+    module: 'organization',
+  },
+  publishToNuget: {
+    dotNetNamespace: 'renovosolutions',
+    packageId: 'Renovo.AWSCDK.AWSOrganization',
+  },
+  jestOptions: {
+    jestConfig: {
+      timers: 'fake',
+    },
+  },
+  workflowNodeVersion: '14.17.0',
 });
 project.synth();
