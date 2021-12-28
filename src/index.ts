@@ -86,7 +86,7 @@ export interface OrganizationOUProps {
   readonly provider: custom_resources.Provider;
   /**
    * Whether or not to import an existing OU if the new OU is a duplicate. If this is false and the OU already exists an error will be thrown.
-   * 
+   *
    * @default false
    */
   readonly importOnDuplicate?: boolean;
@@ -95,7 +95,7 @@ export interface OrganizationOUProps {
    * If this is false and the OU already exists an error will be thrown.
    * If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
    * and the duplicate, now empty, OU will be deleted.
-   * 
+   *
    * @default false
    */
   readonly allowMergeOnMove?: boolean;
