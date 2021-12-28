@@ -1,0 +1,14 @@
+{
+  "RequestType": "Create",
+  "ServiceToken": "arn:aws:lambda:us-east-1:123456789011:function:OrganizationStack-OrganizationOUProviderproviderfr-bhqHNYRVZfg2",
+  "ResponseURL": "foobar",
+  "StackId": "arn:aws:cloudformation:us-east-1:123456789011:stack/OrganizationStack/959824b0-67cf-11ec-a231-0e443d09d895",
+  "RequestId": "d98e54f4-c53f-423b-bf64-b8b4a7fe42f5",
+  "LogicalResourceId": "OrganizationOUouEDCB4747",
+  "ResourceType": "AWS::CloudFormation::CustomResource",
+  "ResourceProperties": {
+    "ServiceToken": "arn:aws:lambda:us-east-1:123456789011:function:OrganizationStack-OrganizationOUProviderproviderfr-bhqHNYRVZfg2",
+    "ParentId": "r-a1b2",
+    "Name": "TestOULib"
+  }
+}
