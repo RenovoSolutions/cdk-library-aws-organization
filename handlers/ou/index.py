@@ -32,7 +32,8 @@ def on_create(event):
       ParentId=event['ResourceProperties']['ParentId'],
       Name=event['ResourceProperties']['Name']
     )
-    print(response)
+    print('Created OU: {}'.format(event['ResourceProperties']['Name']))
+    print('OU id is: {}'.format(response['OrganizationalUnit']['Id']))
     return { 'PhysicalResourceId': response['OrganizationalUnit']['Id'] }
   except botocore.exceptions.ClientError as e:
     if e.response['Error']['Code'] == 'DuplicateOrganizationalUnitException':
@@ -45,16 +46,26 @@ def on_create(event):
           'Name': event['ResourceProperties']['Name']
         }
       }
+    else:
+      raise e
     
 def on_update(event):
+  # if event['ResourceProperties']['ParentId'] != event['OldResourceProperties']['ParentId']:
+  #   print('ParentId changed. Attempting to delete OU: {}'.format(event['ResourceProperties']['Name']))
+  #   client = boto3.client('organizations')
+  #   response = client.delete_organizational_unit(
+  #     OrganizationalUnitId=event['PhysicalResourceId']
+  #   )
+  #   print(response)
+  #   return on_create(event)
   try:
-    print('Updating OU: {}'.format(event['ResourceProperties']['Name']))
+    print('Updating OU: {} ({})'.format(event['OldResourceProperties']['Name'], event['PhysicalResourceId']))
     client = boto3.client('organizations')
     response = client.update_organizational_unit(
       OrganizationalUnitId=event['PhysicalResourceId'],
       Name=event['ResourceProperties']['Name']
     )
-    print(response)
+    print('Updated OU: {} ({})'.format(event['ResourceProperties']['Name'], event['PhysicalResourceId']))
     return {
       'PhysicalResourceId': event['PhysicalResourceId'],
       'Data': {
@@ -65,6 +76,8 @@ def on_update(event):
   except botocore.exceptions.ClientError as e:
     if e.response['Error']['Code'] == 'DuplicateOrganizationalUnitException':
       raise Exception('OU already exists: {}'.format(event['ResourceProperties']['Name']))
+    else:
+      raise e
 
 def on_delete(event):
   print('Deleting OU: {}'.format(event['ResourceProperties']['Name']))
