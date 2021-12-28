@@ -1,3 +1,4 @@
+import * as path from 'path';
 import {
   custom_resources,
   aws_lambda as lambda,
@@ -21,9 +22,11 @@ export class OrganizationOUProvider extends Construct {
   constructor(scope: Construct, id: string, props: OrganizationOUProviderProps) {
     super(scope, id);
 
+    const handlersPath = path.join(__dirname, '../handlers');
+
     const onEvent = new lambda.Function(this, 'handler', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset('handlers/ou'),
+      code: lambda.Code.fromAsset(handlersPath + '/ou'),
       handler: 'index.on_event',
     });
 
