@@ -5,6 +5,7 @@ import {
   aws_iam as iam,
   CustomResource,
   aws_logs as logs,
+  Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -28,6 +29,7 @@ export class OrganizationOUProvider extends Construct {
       runtime: lambda.Runtime.PYTHON_3_9,
       code: lambda.Code.fromAsset(handlersPath + '/ou'),
       handler: 'index.on_event',
+      timeout: Duration.seconds(10),
     });
 
     let role: iam.IRole;
