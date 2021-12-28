@@ -1,0 +1,16 @@
+{
+  "RequestType": "Delete",
+  "ResponseURL": "http://pre-signed-S3-url-for-response",
+  "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/stack-name/guid",
+  "RequestId": "unique id for this delete request",
+  "LogicalResourceId": "TestResource",
+  "PhysicalResourceId": "ou-g9g3-wl83rl0i",
+  "ResourceType": "AWS::CloudFormation::CustomResource",
+  "ResourceProperties": {
+    "ParentId": "r-a1b2",
+    "Name": "TestOULib",
+    "AllowMergeOnMove": "false",
+    "AllowRecreateOnUpdate": "false",
+    "ImportOnDuplicate": "false"
+  }
+}

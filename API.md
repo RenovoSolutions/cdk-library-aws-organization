@@ -127,6 +127,52 @@ You can create a provider with the OrganizationOuProvider class
 
 ---
 
+##### `allowMergeOnMove`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.allowMergeOnMove"></a>
+
+```typescript
+public readonly allowMergeOnMove: boolean;
+```
+
+- *Type:* `boolean`
+- *Default:* false
+
+Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
+
+If this is false and the OU already exists an error will be thrown.
+If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
+and the duplicate, now empty, OU will be deleted.
+
+---
+
+##### `allowRecreateOnUpdate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.allowRecreateOnUpdate"></a>
+
+```typescript
+public readonly allowRecreateOnUpdate: boolean;
+```
+
+- *Type:* `boolean`
+
+Whether or not a missing OU should be recreated during an update.
+
+If this is false and the OU does not exist an error will be thrown when you try to update it.
+
+---
+
+##### `importOnDuplicate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.importOnDuplicate"></a>
+
+```typescript
+public readonly importOnDuplicate: boolean;
+```
+
+- *Type:* `boolean`
+- *Default:* false
+
+Whether or not to import an existing OU if the new OU is a duplicate.
+
+If this is false and the OU already exists an error will be thrown.
+
+---
+
 ### OrganizationOUProviderProps <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProviderProps"></a>
 
 #### Initializer <a name="[object Object].Initializer"></a>
