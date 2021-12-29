@@ -18,3 +18,7 @@ This CDK library is a WIP and not ready for production use.
 LAMBDA_FUNCTION_NAME='<name you noted earlier>' pytest ./handler_tests/<handler>/test.py -rA --capture=sys
 ```
 - The `test.py` also looks up the root org id to run tests so you'll need to have AWS creds set up to accomodate that behavior.
+- You can run the provided tests against the real lambda function by getting the deployed function name from AWS and setting the `RUN_LOCALLY` env variable
+```
+RUN_LOCALLY='false' LAMBDA_FUNCTION_NAME='<name from AWS>' pytest ./handler_tests/<handler>/test.py -rA --capture=sys
+```
