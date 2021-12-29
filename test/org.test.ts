@@ -8,7 +8,7 @@ test('Snapshot', () => {
 
   new OrganizationOU(stack, 'ou', {
     name: 'test',
-    parentId: 'r-1234',
+    parent: 'r-1234',
     provider: new OrganizationOUProvider(stack, 'provider', {}).provider,
   });
 

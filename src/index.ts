@@ -9,6 +9,51 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+/**
+ * The supported OrgObject types
+ */
+export enum OrgObjectTypes {
+  OU = 'ou',
+  ACCOUNT = 'account',
+}
+
+/**
+ * The structure of an OrgObject
+ */
+export type OrgObject = {
+  name: string;
+  type: OrgObjectTypes;
+  children: OrgObject[];
+}
+
+/**
+ * @function processOrgObj
+ * Function to process an OrgObject and create the corresponding AWS resources
+ *
+ * @param {Construct} this The construct resources will be added to.
+ * @param {custom_resources.Provider} provider The custom resource provider the custom resources will utilized to create the resources.
+ * @param {OrgObject} obj The OrgObject to process.
+ * @param {string | OrganizationOU} parent The parent of the OrgObject. This is either a string, like for the org root, or an OrganizationOU object from the same stack.
+ */
+export function processOrgObj(this: Construct, provider: custom_resources.Provider, obj: OrgObject, parent: string | OrganizationOU) {
+  if (obj.type === OrgObjectTypes.OU) {
+    const parentStr = parent instanceof OrganizationOU ? parent.resource.ref : parent;
+
+    const ou = new OrganizationOU(this, obj.name, {
+      provider,
+      parent: parentStr,
+      name: obj.name,
+    });
+
+    obj.children.forEach(child => {
+      processOrgObj.call(this, provider, child, ou);
+    });
+  }
+}
+
+/**
+ * The properties for the OU custom resource provider.
+ */
 export interface OrganizationOUProviderProps {
   /**
    * The role the custom resource should use for taking actions on OUs if one is not provided one will be created automatically
@@ -16,6 +61,11 @@ export interface OrganizationOUProviderProps {
   readonly role?: iam.IRole;
 }
 
+/**
+ * The provider for OU custom resources
+ *
+ * This creates a lambda function that handles custom resource requests for creating/updating/deleting OUs.
+ */
 export class OrganizationOUProvider extends Construct {
 
   public readonly provider: custom_resources.Provider;
@@ -67,6 +117,9 @@ export class OrganizationOUProvider extends Construct {
   }
 }
 
+/**
+ * The properties of an OrganizationOU custom resource.
+ */
 export interface OrganizationOUProps {
   /**
    * The name of the OU
@@ -75,7 +128,7 @@ export interface OrganizationOUProps {
   /**
    * The parent OU id
    */
-  readonly parentId: string;
+  readonly parent: string | OrganizationOU;
   /**
    * The provider to use for the custom resource that will create the OU. You can create a provider with the OrganizationOuProvider class
    */
@@ -102,6 +155,11 @@ export interface OrganizationOUProps {
   readonly allowRecreateOnUpdate?: boolean;
 }
 
+/**
+ * The construct to create or update an Organization OU
+ *
+ * This relies on the custom resource provider OrganizationOUProvider.
+*/
 export class OrganizationOU extends Construct {
 
   public readonly resource: CustomResource;
@@ -113,16 +171,23 @@ export class OrganizationOU extends Construct {
     const allowMergeOnMove = props.allowMergeOnMove ?? false;
     const allowRecreateOnUpdate = props.allowRecreateOnUpdate ?? false;
 
+    const parentStr = props.parent instanceof OrganizationOU ? props.parent.resource.ref : props.parent;
+
     this.resource = new CustomResource(this, 'ou', {
       serviceToken: props.provider.serviceToken,
       properties: {
-        ParentId: props.parentId,
+        Parent: parentStr,
         Name: props.name,
         ImportOnDuplicate: importOnDuplicate,
         AllowMergeOnMove: allowMergeOnMove,
         AllowRecreateOnUpdate: allowRecreateOnUpdate,
       },
     });
+
+    this.resource.node.addDependency(props.provider);
+    if (props.parent instanceof OrganizationOU) {
+      this.resource.node.addDependency(props.parent);
+    };
   }
 }
 

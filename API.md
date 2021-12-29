@@ -4,6 +4,10 @@
 
 ### OrganizationOU <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOU"></a>
 
+The construct to create or update an Organization OU.
+
+This relies on the custom resource provider OrganizationOUProvider.
+
 #### Initializers <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOU.Initializer"></a>
 
 ```typescript
@@ -46,6 +50,10 @@ public readonly resource: CustomResource;
 
 
 ### OrganizationOUProvider <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProvider"></a>
+
+The provider for OU custom resources.
+
+This creates a lambda function that handles custom resource requests for creating/updating/deleting OUs.
 
 #### Initializers <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProvider.Initializer"></a>
 
@@ -92,6 +100,8 @@ public readonly provider: Provider;
 
 ### OrganizationOUProps <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps"></a>
 
+The properties of an OrganizationOU custom resource.
+
 #### Initializer <a name="[object Object].Initializer"></a>
 
 ```typescript
@@ -112,13 +122,13 @@ The name of the OU.
 
 ---
 
-##### `parentId`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.parentId"></a>
+##### `parent`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.parent"></a>
 
 ```typescript
-public readonly parentId: string;
+public readonly parent: string | OrganizationOU;
 ```
 
-- *Type:* `string`
+- *Type:* `string` | [`@renovosolutions/cdk-library-aws-organization.OrganizationOU`](#@renovosolutions/cdk-library-aws-organization.OrganizationOU)
 
 The parent OU id.
 
@@ -186,6 +196,8 @@ If this is false and the OU already exists an error will be thrown.
 
 ### OrganizationOUProviderProps <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProviderProps"></a>
 
+The properties for the OU custom resource provider.
+
 #### Initializer <a name="[object Object].Initializer"></a>
 
 ```typescript
@@ -207,4 +219,19 @@ The role the custom resource should use for taking actions on OUs if one is not 
 ---
 
 
+
+## Enums <a name="Enums"></a>
+
+### OrgObjectTypes <a name="OrgObjectTypes"></a>
+
+The supported OrgObject types.
+
+#### `OU` <a name="@renovosolutions/cdk-library-aws-organization.OrgObjectTypes.OU"></a>
+
+---
+
+
+#### `ACCOUNT` <a name="@renovosolutions/cdk-library-aws-organization.OrgObjectTypes.ACCOUNT"></a>
+
+---
 
