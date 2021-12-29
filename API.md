@@ -32,6 +32,17 @@ new OrganizationOU(scope: Construct, id: string, props: OrganizationOUProps)
 
 
 
+#### Properties <a name="Properties"></a>
+
+##### `resource`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOU.property.resource"></a>
+
+```typescript
+public readonly resource: CustomResource;
+```
+
+- *Type:* [`aws-cdk-lib.CustomResource`](#aws-cdk-lib.CustomResource)
+
+---
 
 
 ### OrganizationOUProvider <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProvider"></a>
