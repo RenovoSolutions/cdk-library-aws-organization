@@ -90,12 +90,18 @@ Object {
     },
     "ou99BEB269": Object {
       "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "providerframeworkonEventLogRetention756CA079",
+        "providerframeworkonEventAAD5433A",
+        "providerframeworkonEventServiceRoleDefaultPolicy3A9827ED",
+        "providerframeworkonEventServiceRole1801F40C",
+      ],
       "Properties": Object {
         "AllowMergeOnMove": false,
         "AllowRecreateOnUpdate": false,
         "ImportOnDuplicate": false,
         "Name": "test",
-        "ParentId": "r-1234",
+        "Parent": "r-1234",
         "ServiceToken": Object {
           "Fn::GetAtt": Array [
             "providerframeworkonEventAAD5433A",
