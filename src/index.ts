@@ -40,11 +40,6 @@ export class OrganizationOUProvider extends Construct {
               'organizations:CreateOrganizationalUnit',
             ],
             resources: ['*'],
-            conditions: {
-              StringEquals: {
-                'aws:CalledVia': 'cloudformation.amazonaws.com',
-              },
-            },
           }),
         ],
       });

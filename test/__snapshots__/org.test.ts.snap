@@ -257,11 +257,6 @@ Object {
                 "organizations:ListOrganizationalUnitsForParent",
                 "organizations:CreateOrganizationalUnit",
               ],
-              "Condition": Object {
-                "StringEquals": Object {
-                  "aws:CalledVia": "cloudformation.amazonaws.com",
-                },
-              },
               "Effect": "Allow",
               "Resource": "*",
             },

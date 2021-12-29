@@ -3,17 +3,25 @@ import botocore
 import json
 import os
 
-lambda_client = boto3.client('lambda',
-  region_name="us-east-1",
-  endpoint_url="http://127.0.0.1:3001",
-  use_ssl=False,
-  verify=False,
-  config=botocore.client.Config(
-    signature_version=botocore.UNSIGNED,
-    read_timeout=10,
-    retries={'max_attempts': 0},
+running_locally = True
+
+if os.getenv("RUN_LOCALLY") == "false":
+  running_locally = False
+
+if running_locally:
+  lambda_client = boto3.client('lambda',
+    region_name="us-east-1",
+    endpoint_url="http://127.0.0.1:3001",
+    use_ssl=False,
+    verify=False,
+    config=botocore.client.Config(
+      signature_version=botocore.UNSIGNED,
+      read_timeout=10,
+      retries={'max_attempts': 0},
+    )
   )
-)
+else:
+  lambda_client = boto3.client('lambda')
 
 ou_id = ''
 
@@ -108,7 +116,19 @@ def test_update_with_recreate_should_create_OU_when_old_ou_does_not_exist():
   )
 
   response_json = json.loads(response["Payload"].read())
+  global ou_id
+  ou_id = response_json['PhysicalResourceId']
   assert response['ResponseMetadata']['HTTPStatusCode'] == 200
   assert response_json['Data']['Message'] == 'Created new OU: TestOULib'
   
+def test_cleanup():
+  f = open('events/ou/delete.json', 'r')
+  global parent_id
+  response = lambda_client.invoke(
+    FunctionName=os.getenv("LAMBDA_FUNCTION_NAME"),
+    Payload=update_payload(f, parent_id)
+  )
 
+  response_json = json.loads(response["Payload"].read())
+  assert response['ResponseMetadata']['HTTPStatusCode'] == 200
+  assert response_json['Data']['Message'] == 'Deleted OU: TestOULib'
