@@ -223,19 +223,19 @@ Object {
     },
     "providerhandler99C7F7C1": Object {
       "DependsOn": Array [
-        "providerhandlerServiceRole4790D240",
+        "providerrole9F23247E",
       ],
       "Properties": Object {
         "Code": Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "12662668fc5e9da8245bb9046d5fddcd91e98b89b0a866b96e595022603540a8.zip",
+          "S3Key": "1e81f64988dedb056406e02be33013182417a66fe0b1958203f3d1d492f27642.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
           "Fn::GetAtt": Array [
-            "providerhandlerServiceRole4790D240",
+            "providerrole9F23247E",
             "Arn",
           ],
         },
@@ -243,37 +243,6 @@ Object {
         "Timeout": 10,
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "providerhandlerServiceRole4790D240": Object {
-      "Properties": Object {
-        "AssumeRolePolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": Object {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": Array [
-          Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "arn:",
-                Object {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
     },
     "providerpolicyE36DBAED": Object {
       "Properties": Object {
@@ -319,6 +288,18 @@ Object {
         "ManagedPolicyArns": Array [
           Object {
             "Ref": "providerpolicyE36DBAED",
+          },
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
           },
         ],
       },

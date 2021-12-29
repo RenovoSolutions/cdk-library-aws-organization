@@ -1,5 +1,3 @@
-# Creates an OU in an AWS Organization
-
 import boto3
 import botocore
 

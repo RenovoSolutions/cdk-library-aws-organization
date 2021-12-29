@@ -23,15 +23,6 @@ export class OrganizationOUProvider extends Construct {
   constructor(scope: Construct, id: string, props: OrganizationOUProviderProps) {
     super(scope, id);
 
-    const handlersPath = path.join(__dirname, '../handlers');
-
-    const onEvent = new lambda.Function(this, 'handler', {
-      runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset(handlersPath + '/ou'),
-      handler: 'index.on_event',
-      timeout: Duration.seconds(10),
-    });
-
     let role: iam.IRole;
 
     if (!props.role) {
@@ -59,14 +50,24 @@ export class OrganizationOUProvider extends Construct {
       });
 
       role.addManagedPolicy(policy);
+      role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
     } else {
       role = props.role;
     }
 
+    const handlersPath = path.join(__dirname, '../handlers');
+
+    const onEvent = new lambda.Function(this, 'handler', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(handlersPath + '/ou'),
+      handler: 'index.on_event',
+      timeout: Duration.seconds(10),
+      role,
+    });
+
     this.provider = new custom_resources.Provider(this, 'provider', {
       onEventHandler: onEvent,
       logRetention: logs.RetentionDays.ONE_DAY,
-      role: props.role,
     });
   }
 }
