@@ -103,6 +103,9 @@ export interface OrganizationOUProps {
 }
 
 export class OrganizationOU extends Construct {
+
+  public readonly resource: CustomResource;
+
   constructor(scope: Construct, id: string, props: OrganizationOUProps) {
     super(scope, id);
 
@@ -110,7 +113,7 @@ export class OrganizationOU extends Construct {
     const allowMergeOnMove = props.allowMergeOnMove ?? false;
     const allowRecreateOnUpdate = props.allowRecreateOnUpdate ?? false;
 
-    new CustomResource(this, 'ou', {
+    this.resource = new CustomResource(this, 'ou', {
       serviceToken: props.provider.serviceToken,
       properties: {
         ParentId: props.parentId,
