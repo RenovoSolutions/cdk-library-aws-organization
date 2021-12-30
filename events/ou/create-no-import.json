@@ -6,7 +6,7 @@
   "LogicalResourceId": "TestResource",
   "ResourceType": "AWS::CloudFormation::CustomResource",
   "ResourceProperties": {
-    "ParentId": "r-a1b2",
+    "Parent": "r-a1b2",
     "Name": "TestOULib",
     "AllowMergeOnMove": "false",
     "AllowRecreateOnUpdate": "false",
