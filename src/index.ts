@@ -18,12 +18,60 @@ export enum OrgObjectTypes {
 }
 
 /**
+ * The properties of an OU
+ */
+export interface OUProps {
+  /**
+   * The name of the OU
+   */
+  readonly name: string;
+};
+
+/**
+ * The properties of an Account
+ */
+export interface AccountProps {
+  /**
+   * The name of the account
+   */
+  readonly name: string;
+  /**
+   * The email address of the account. Most be unique.
+   */
+  readonly email: string;
+};
+
+/**
  * The structure of an OrgObject
  */
-export type OrgObject = {
-  name: string;
-  type: OrgObjectTypes;
-  children: OrgObject[];
+export interface OrgObject {
+  /**
+   * The unique id of the OrgObject. This is used as the unique identifier when instantiating a construct object.
+   * This is important for the CDK to be able to maintain a reference for the object when utilizing
+   * the processOrgObj function rather then using the name property of an object which could change.
+   * If the id changes the CDK treats this as a new construct and will create a new construct resource and
+   * destroy the old one.
+   *
+   * Not strictly required but useful when using the processOrgObj function. If the id is not provided
+   * the name property will be used as the id in processOrgObj.
+   *
+   * You can create a unique id however you like. A bash example is provided.
+   * @example
+   * echo "ou-$( echo $RANDOM | md5sum | head -c 8 )"
+   */
+  readonly id?: string;
+  /**
+   * The org object properties.
+   */
+  readonly properties: OUProps | AccountProps;
+  /**
+   * The type of the org object.
+   */
+  readonly type: OrgObjectTypes;
+  /**
+   * Other org objects that are children of this org object.
+   */
+  readonly children: OrgObject[];
 }
 
 /**
@@ -39,10 +87,12 @@ export function processOrgObj(this: Construct, provider: custom_resources.Provid
   if (obj.type === OrgObjectTypes.OU) {
     const parentStr = parent instanceof OrganizationOU ? parent.resource.ref : parent;
 
-    const ou = new OrganizationOU(this, obj.name, {
+    let id = obj.id ?? obj.properties.name;
+
+    const ou = new OrganizationOU(this, id, {
       provider,
       parent: parentStr,
-      name: obj.name,
+      name: obj.properties.name,
     });
 
     obj.children.forEach(child => {
