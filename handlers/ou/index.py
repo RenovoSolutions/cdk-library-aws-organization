@@ -5,7 +5,7 @@ def get_ou_id(event):
   organizations = boto3.client('organizations')
 
   response = organizations.list_organizational_units_for_parent(
-      ParentId=event['ResourceProperties']['ParentId']
+      ParentId=event['ResourceProperties']['Parent']
   )
 
   for ou in response['OrganizationalUnits']:
@@ -31,7 +31,7 @@ def on_create(event, allow_merge_on_move=False, recreate_on_update=False, import
     print('Creating OU: {}'.format(event['ResourceProperties']['Name']))
     client = boto3.client('organizations')
     response = client.create_organizational_unit(
-      ParentId=event['ResourceProperties']['ParentId'],
+      ParentId=event['ResourceProperties']['Parent'],
       Name=event['ResourceProperties']['Name']
     )
     msg = 'Created new OU: {}'.format(event['ResourceProperties']['Name'])
@@ -62,8 +62,8 @@ def on_create(event, allow_merge_on_move=False, recreate_on_update=False, import
       raise e
     
 def on_update(event, allow_merge_on_move=False, recreate_on_update=False, import_on_duplicate=False):
-  if event['ResourceProperties']['ParentId'] != event['OldResourceProperties']['ParentId']:
-    print('ParentId changed for UO: Was {}. Now {}'.format(event['OldResourceProperties']['ParentId'], event['ResourceProperties']['ParentId']))
+  if event['ResourceProperties']['Parent'] != event['OldResourceProperties']['Parent']:
+    print('Parent changed for UO: Was {}. Now {}'.format(event['OldResourceProperties']['Parent'], event['ResourceProperties']['Parent']))
     return on_create(event, allow_merge_on_move, recreate_on_update, import_on_duplicate)
   try:
     print('Updating OU: {} ({})'.format(event['OldResourceProperties']['Name'], event['PhysicalResourceId']))
