@@ -1,0 +1,15 @@
+{
+  "RequestType": "Create",
+  "ResponseURL": "http://pre-signed-S3-url-for-response",
+  "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/stack-name/guid",
+  "RequestId": "unique id for this create request",
+  "LogicalResourceId": "TestResource",
+  "ResourceType": "AWS::CloudFormation::CustomResource",
+  "ResourceProperties": {
+    "Parent": "r-a1b2",
+    "Name": "TestOULibChild",
+    "AllowMergeOnMove": "false",
+    "AllowRecreateOnUpdate": "false",
+    "ImportOnDuplicate": "false"
+  }
+}

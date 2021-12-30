@@ -14,6 +14,30 @@ def get_ou_id(event):
 
   raise Exception('OuNotFoundException')
 
+def does_ou_have_accounts(ou_id):
+  client = boto3.client('organizations')
+  try:
+    response = client.list_children(
+        ParentId=ou_id,
+        ChildType='ACCOUNT'
+    )
+    if len(response['Accounts']) > 0:
+      return True
+    else:
+      response = client.list_children(
+        ParentId=ou_id,
+        ChildType='ORGANIZATIONAL_UNIT'
+      )
+      if len(response['OrganizationalUnits']) > 0:
+        for ou in response['OrganizationalUnits']:
+          if does_ou_have_accounts(ou['Id']):
+            return True
+        return False
+      else:
+        return False
+  except botocore.exceptions.ClientError as e:
+    raise e
+
 def on_event(event, context):  
   print(event)
   allow_merge_on_move = True if event['ResourceProperties']['AllowMergeOnMove'] == "true" else False
@@ -63,8 +87,11 @@ def on_create(event, allow_merge_on_move=False, recreate_on_update=False, import
     
 def on_update(event, allow_merge_on_move=False, recreate_on_update=False, import_on_duplicate=False):
   if event['ResourceProperties']['Parent'] != event['OldResourceProperties']['Parent']:
-    print('Parent changed for UO: Was {}. Now {}'.format(event['OldResourceProperties']['Parent'], event['ResourceProperties']['Parent']))
-    return on_create(event, allow_merge_on_move, recreate_on_update, import_on_duplicate)
+    print('Parent changed for UO and OUs cant be moved, will recreate: Was {}. Now {}'.format(event['OldResourceProperties']['Parent'], event['ResourceProperties']['Parent']))
+    if does_ou_have_accounts(event['PhysicalResourceId']):
+      raise Exception('OU or OU child has accounts as children so OU cannot be recreated. OUs do not support moving directly. Please move accounts to new OU first.')
+    else:
+      return on_create(event, allow_merge_on_move, recreate_on_update, import_on_duplicate)
   try:
     print('Updating OU: {} ({})'.format(event['OldResourceProperties']['Name'], event['PhysicalResourceId']))
     client = boto3.client('organizations')
@@ -116,3 +143,14 @@ def on_delete(event):
           'Message': msg
         }
       }
+    if e.response['Error']['Code'] == 'OrganizationalUnitNotEmptyException':
+      msg = 'OU has children and cannot be deleted: {}'.format(event['ResourceProperties']['Name'])
+      print(msg)
+      return {
+        'PhysicalResourceId': event['PhysicalResourceId'],
+        'Data': {
+          'Message': msg
+        }
+      }
+    else:
+      raise e
