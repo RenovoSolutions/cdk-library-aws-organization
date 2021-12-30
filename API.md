@@ -98,6 +98,44 @@ public readonly provider: Provider;
 
 ## Structs <a name="Structs"></a>
 
+### AccountProps <a name="@renovosolutions/cdk-library-aws-organization.AccountProps"></a>
+
+The properties of an Account.
+
+#### Initializer <a name="[object Object].Initializer"></a>
+
+```typescript
+import { AccountProps } from '@renovosolutions/cdk-library-aws-organization'
+
+const accountProps: AccountProps = { ... }
+```
+
+##### `email`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.AccountProps.property.email"></a>
+
+```typescript
+public readonly email: string;
+```
+
+- *Type:* `string`
+
+The email address of the account.
+
+Most be unique.
+
+---
+
+##### `name`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.AccountProps.property.name"></a>
+
+```typescript
+public readonly name: string;
+```
+
+- *Type:* `string`
+
+The name of the account.
+
+---
+
 ### OrganizationOUProps <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps"></a>
 
 The properties of an OrganizationOU custom resource.
@@ -215,6 +253,101 @@ public readonly role: IRole;
 - *Type:* [`aws-cdk-lib.aws_iam.IRole`](#aws-cdk-lib.aws_iam.IRole)
 
 The role the custom resource should use for taking actions on OUs if one is not provided one will be created automatically.
+
+---
+
+### OrgObject <a name="@renovosolutions/cdk-library-aws-organization.OrgObject"></a>
+
+The structure of an OrgObject.
+
+#### Initializer <a name="[object Object].Initializer"></a>
+
+```typescript
+import { OrgObject } from '@renovosolutions/cdk-library-aws-organization'
+
+const orgObject: OrgObject = { ... }
+```
+
+##### `children`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrgObject.property.children"></a>
+
+```typescript
+public readonly children: OrgObject[];
+```
+
+- *Type:* [`@renovosolutions/cdk-library-aws-organization.OrgObject`](#@renovosolutions/cdk-library-aws-organization.OrgObject)[]
+
+Other org objects that are children of this org object.
+
+---
+
+##### `properties`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrgObject.property.properties"></a>
+
+```typescript
+public readonly properties: OUProps | AccountProps;
+```
+
+- *Type:* [`@renovosolutions/cdk-library-aws-organization.OUProps`](#@renovosolutions/cdk-library-aws-organization.OUProps) | [`@renovosolutions/cdk-library-aws-organization.AccountProps`](#@renovosolutions/cdk-library-aws-organization.AccountProps)
+
+The org object properties.
+
+---
+
+##### `type`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrgObject.property.type"></a>
+
+```typescript
+public readonly type: OrgObjectTypes;
+```
+
+- *Type:* [`@renovosolutions/cdk-library-aws-organization.OrgObjectTypes`](#@renovosolutions/cdk-library-aws-organization.OrgObjectTypes)
+
+The type of the org object.
+
+---
+
+##### `id`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrgObject.property.id"></a>
+
+```typescript
+public readonly id: string;
+```
+
+- *Type:* `string`
+
+The unique id of the OrgObject.
+
+This is used as the unique identifier when instantiating a construct object.
+This is important for the CDK to be able to maintain a reference for the object when utilizing
+the processOrgObj function rather then using the name property of an object which could change.
+If the id changes the CDK treats this as a new construct and will create a new construct resource and
+destroy the old one.
+
+Not strictly required but useful when using the processOrgObj function. If the id is not provided
+the name property will be used as the id in processOrgObj.
+
+You can create a unique id however you like. A bash example is provided.
+
+---
+
+### OUProps <a name="@renovosolutions/cdk-library-aws-organization.OUProps"></a>
+
+The properties of an OU.
+
+#### Initializer <a name="[object Object].Initializer"></a>
+
+```typescript
+import { OUProps } from '@renovosolutions/cdk-library-aws-organization'
+
+const oUProps: OUProps = { ... }
+```
+
+##### `name`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUProps.property.name"></a>
+
+```typescript
+public readonly name: string;
+```
+
+- *Type:* `string`
+
+The name of the OU.
 
 ---
 
