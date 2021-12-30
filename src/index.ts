@@ -162,6 +162,7 @@ export class OrganizationOUProvider extends Construct {
               'organizations:DeleteOrganizationalUnit',
               'organizations:ListOrganizationalUnitsForParent',
               'organizations:CreateOrganizationalUnit',
+              'organizations:ListChildren',
             ],
             resources: ['*'],
           }),

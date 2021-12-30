@@ -97,7 +97,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "447f2294c8ef8f428abdc3e30eaca89ea5cebfe0fdaeb94907e7f98498ce93ed.zip",
+          "S3Key": "e77670164b42630486008ea720d6d8e373fc2cca4b773c49eccb14b00c97a984.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -123,6 +123,7 @@ Object {
                 "organizations:DeleteOrganizationalUnit",
                 "organizations:ListOrganizationalUnitsForParent",
                 "organizations:CreateOrganizationalUnit",
+                "organizations:ListChildren",
               ],
               "Effect": "Allow",
               "Resource": "*",
