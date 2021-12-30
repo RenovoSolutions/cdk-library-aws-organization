@@ -13,7 +13,7 @@ This relies on the custom resource provider OrganizationOUProvider.
 ```typescript
 import { OrganizationOU } from '@renovosolutions/cdk-library-aws-organization'
 
-new OrganizationOU(scope: Construct, id: string, props: OrganizationOUProps)
+new OrganizationOU(scope: Construct, id: string, props: OUResourceProps)
 ```
 
 ##### `scope`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOU.parameter.scope"></a>
@@ -30,7 +30,7 @@ new OrganizationOU(scope: Construct, id: string, props: OrganizationOUProps)
 
 ##### `props`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOU.parameter.props"></a>
 
-- *Type:* [`@renovosolutions/cdk-library-aws-organization.OrganizationOUProps`](#@renovosolutions/cdk-library-aws-organization.OrganizationOUProps)
+- *Type:* [`@renovosolutions/cdk-library-aws-organization.OUResourceProps`](#@renovosolutions/cdk-library-aws-organization.OUResourceProps)
 
 ---
 
@@ -133,102 +133,6 @@ public readonly name: string;
 - *Type:* `string`
 
 The name of the account.
-
----
-
-### OrganizationOUProps <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps"></a>
-
-The properties of an OrganizationOU custom resource.
-
-#### Initializer <a name="[object Object].Initializer"></a>
-
-```typescript
-import { OrganizationOUProps } from '@renovosolutions/cdk-library-aws-organization'
-
-const organizationOUProps: OrganizationOUProps = { ... }
-```
-
-##### `name`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.name"></a>
-
-```typescript
-public readonly name: string;
-```
-
-- *Type:* `string`
-
-The name of the OU.
-
----
-
-##### `parent`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.parent"></a>
-
-```typescript
-public readonly parent: string | OrganizationOU;
-```
-
-- *Type:* `string` | [`@renovosolutions/cdk-library-aws-organization.OrganizationOU`](#@renovosolutions/cdk-library-aws-organization.OrganizationOU)
-
-The parent OU id.
-
----
-
-##### `provider`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.provider"></a>
-
-```typescript
-public readonly provider: Provider;
-```
-
-- *Type:* [`aws-cdk-lib.custom_resources.Provider`](#aws-cdk-lib.custom_resources.Provider)
-
-The provider to use for the custom resource that will create the OU.
-
-You can create a provider with the OrganizationOuProvider class
-
----
-
-##### `allowMergeOnMove`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.allowMergeOnMove"></a>
-
-```typescript
-public readonly allowMergeOnMove: boolean;
-```
-
-- *Type:* `boolean`
-- *Default:* false
-
-Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
-
-If this is false and the OU already exists an error will be thrown.
-If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
-and the duplicate, now empty, OU will be deleted.
-
----
-
-##### `allowRecreateOnUpdate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.allowRecreateOnUpdate"></a>
-
-```typescript
-public readonly allowRecreateOnUpdate: boolean;
-```
-
-- *Type:* `boolean`
-
-Whether or not a missing OU should be recreated during an update.
-
-If this is false and the OU does not exist an error will be thrown when you try to update it.
-
----
-
-##### `importOnDuplicate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OrganizationOUProps.property.importOnDuplicate"></a>
-
-```typescript
-public readonly importOnDuplicate: boolean;
-```
-
-- *Type:* `boolean`
-- *Default:* false
-
-Whether or not to import an existing OU if the new OU is a duplicate.
-
-If this is false and the OU already exists an error will be thrown.
 
 ---
 
@@ -348,6 +252,148 @@ public readonly name: string;
 - *Type:* `string`
 
 The name of the OU.
+
+---
+
+##### `allowMergeOnMove`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUProps.property.allowMergeOnMove"></a>
+
+```typescript
+public readonly allowMergeOnMove: boolean;
+```
+
+- *Type:* `boolean`
+- *Default:* false
+
+Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
+
+If this is false and the OU already exists an error will be thrown.
+If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
+and the duplicate, now empty, OU will be deleted.
+
+---
+
+##### `allowRecreateOnUpdate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUProps.property.allowRecreateOnUpdate"></a>
+
+```typescript
+public readonly allowRecreateOnUpdate: boolean;
+```
+
+- *Type:* `boolean`
+
+Whether or not a missing OU should be recreated during an update.
+
+If this is false and the OU does not exist an error will be thrown when you try to update it.
+
+---
+
+##### `importOnDuplicate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUProps.property.importOnDuplicate"></a>
+
+```typescript
+public readonly importOnDuplicate: boolean;
+```
+
+- *Type:* `boolean`
+- *Default:* false
+
+Whether or not to import an existing OU if the new OU is a duplicate.
+
+If this is false and the OU already exists an error will be thrown.
+
+---
+
+### OUResourceProps <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps"></a>
+
+The properties of an OrganizationOU custom resource.
+
+#### Initializer <a name="[object Object].Initializer"></a>
+
+```typescript
+import { OUResourceProps } from '@renovosolutions/cdk-library-aws-organization'
+
+const oUResourceProps: OUResourceProps = { ... }
+```
+
+##### `name`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.name"></a>
+
+```typescript
+public readonly name: string;
+```
+
+- *Type:* `string`
+
+The name of the OU.
+
+---
+
+##### `allowMergeOnMove`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.allowMergeOnMove"></a>
+
+```typescript
+public readonly allowMergeOnMove: boolean;
+```
+
+- *Type:* `boolean`
+- *Default:* false
+
+Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
+
+If this is false and the OU already exists an error will be thrown.
+If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
+and the duplicate, now empty, OU will be deleted.
+
+---
+
+##### `allowRecreateOnUpdate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.allowRecreateOnUpdate"></a>
+
+```typescript
+public readonly allowRecreateOnUpdate: boolean;
+```
+
+- *Type:* `boolean`
+
+Whether or not a missing OU should be recreated during an update.
+
+If this is false and the OU does not exist an error will be thrown when you try to update it.
+
+---
+
+##### `importOnDuplicate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.importOnDuplicate"></a>
+
+```typescript
+public readonly importOnDuplicate: boolean;
+```
+
+- *Type:* `boolean`
+- *Default:* false
+
+Whether or not to import an existing OU if the new OU is a duplicate.
+
+If this is false and the OU already exists an error will be thrown.
+
+---
+
+##### `parent`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.parent"></a>
+
+```typescript
+public readonly parent: string | OrganizationOU;
+```
+
+- *Type:* `string` | [`@renovosolutions/cdk-library-aws-organization.OrganizationOU`](#@renovosolutions/cdk-library-aws-organization.OrganizationOU)
+
+The parent OU id.
+
+---
+
+##### `provider`<sup>Required</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.provider"></a>
+
+```typescript
+public readonly provider: Provider;
+```
+
+- *Type:* [`aws-cdk-lib.custom_resources.Provider`](#aws-cdk-lib.custom_resources.Provider)
+
+The provider to use for the custom resource that will create the OU.
+
+You can create a provider with the OrganizationOuProvider class
 
 ---
 
