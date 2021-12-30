@@ -38,9 +38,9 @@ def update_payload(payload, parent_id, update_all_parents=True):
   payload_str = json.load(payload)
   if 'PhysicalResourceId' in payload_str:
     payload_str['PhysicalResourceId'] = ou_id
-  payload_str['ResourceProperties']['ParentId'] = parent_id
+  payload_str['ResourceProperties']['Parent'] = parent_id
   if 'OldResourceProperties' in payload_str and update_all_parents:
-    payload_str['OldResourceProperties']['ParentId'] = parent_id
+    payload_str['OldResourceProperties']['Parent'] = parent_id
   payload_bytes_arr = bytes(json.dumps(payload_str), encoding="utf8")
   return payload_bytes_arr
 
