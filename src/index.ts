@@ -25,6 +25,26 @@ export interface OUProps {
    * The name of the OU
    */
   readonly name: string;
+  /**
+   * Whether or not to import an existing OU if the new OU is a duplicate. If this is false and the OU already exists an error will be thrown.
+   *
+   * @default false
+   */
+  readonly importOnDuplicate?: boolean;
+  /**
+    * Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
+    * If this is false and the OU already exists an error will be thrown.
+    * If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
+    * and the duplicate, now empty, OU will be deleted.
+    *
+    * @default false
+    */
+  readonly allowMergeOnMove?: boolean;
+  /**
+    * Whether or not a missing OU should be recreated during an update.
+    * If this is false and the OU does not exist an error will be thrown when you try to update it.
+    */
+  readonly allowRecreateOnUpdate?: boolean;
 };
 
 /**
@@ -87,12 +107,16 @@ export function processOrgObj(this: Construct, provider: custom_resources.Provid
   if (obj.type === OrgObjectTypes.OU) {
     const parentStr = parent instanceof OrganizationOU ? parent.resource.ref : parent;
 
+    let props: OUProps = obj.properties;
     let id = obj.id ?? obj.properties.name;
 
     const ou = new OrganizationOU(this, id, {
       provider,
       parent: parentStr,
-      name: obj.properties.name,
+      name: props.name,
+      importOnDuplicate: props.importOnDuplicate,
+      allowMergeOnMove: props.allowMergeOnMove,
+      allowRecreateOnUpdate: props.allowRecreateOnUpdate,
     });
 
     obj.children.forEach(child => {
@@ -170,11 +194,7 @@ export class OrganizationOUProvider extends Construct {
 /**
  * The properties of an OrganizationOU custom resource.
  */
-export interface OrganizationOUProps {
-  /**
-   * The name of the OU
-   */
-  readonly name: string;
+export interface OUResourceProps extends OUProps {
   /**
    * The parent OU id
    */
@@ -183,26 +203,6 @@ export interface OrganizationOUProps {
    * The provider to use for the custom resource that will create the OU. You can create a provider with the OrganizationOuProvider class
    */
   readonly provider: custom_resources.Provider;
-  /**
-   * Whether or not to import an existing OU if the new OU is a duplicate. If this is false and the OU already exists an error will be thrown.
-   *
-   * @default false
-   */
-  readonly importOnDuplicate?: boolean;
-  /**
-   * Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
-   * If this is false and the OU already exists an error will be thrown.
-   * If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
-   * and the duplicate, now empty, OU will be deleted.
-   *
-   * @default false
-   */
-  readonly allowMergeOnMove?: boolean;
-  /**
-   * Whether or not a missing OU should be recreated during an update.
-   * If this is false and the OU does not exist an error will be thrown when you try to update it.
-   */
-  readonly allowRecreateOnUpdate?: boolean;
 }
 
 /**
@@ -214,7 +214,7 @@ export class OrganizationOU extends Construct {
 
   public readonly resource: CustomResource;
 
-  constructor(scope: Construct, id: string, props: OrganizationOUProps) {
+  constructor(scope: Construct, id: string, props: OUResourceProps) {
     super(scope, id);
 
     const importOnDuplicate = props.importOnDuplicate ?? false;
