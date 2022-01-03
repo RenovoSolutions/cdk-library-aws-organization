@@ -14,30 +14,6 @@ def get_ou_id(event):
 
   raise Exception('OuNotFoundException')
 
-def does_ou_have_accounts(ou_id):
-  client = boto3.client('organizations')
-  try:
-    response = client.list_children(
-        ParentId=ou_id,
-        ChildType='ACCOUNT'
-    )
-    if len(response['Accounts']) > 0:
-      return True
-    else:
-      response = client.list_children(
-        ParentId=ou_id,
-        ChildType='ORGANIZATIONAL_UNIT'
-      )
-      if len(response['OrganizationalUnits']) > 0:
-        for ou in response['OrganizationalUnits']:
-          if does_ou_have_accounts(ou['Id']):
-            return True
-        return False
-      else:
-        return False
-  except botocore.exceptions.ClientError as e:
-    raise e
-
 def on_event(event, context):  
   print(event)
   allow_recreate_on_update = True if event['ResourceProperties']['AllowRecreateOnUpdate'] == "true" else False
