@@ -97,7 +97,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "08a7bf01b9bd8d4278c8059ce1db76dd57a66c1c4aff037d9348c920a1f4dda6.zip",
+          "S3Key": "fc87108a91cae545875f05bb076af181a568e7b34542941846ca8766ab2c6b64.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -292,7 +292,6 @@ Object {
         "OrganizationOUProviderproviderframeworkonEventServiceRole32FF7533",
       ],
       "Properties": Object {
-        "AllowMergeOnMove": false,
         "AllowRecreateOnUpdate": false,
         "ImportOnDuplicate": false,
         "Name": "TestOU",
@@ -316,7 +315,6 @@ Object {
         "OrganizationOUProviderproviderframeworkonEventServiceRole32FF7533",
       ],
       "Properties": Object {
-        "AllowMergeOnMove": false,
         "AllowRecreateOnUpdate": false,
         "ImportOnDuplicate": false,
         "Name": "TestOUChild",

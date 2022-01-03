@@ -255,23 +255,6 @@ The name of the OU.
 
 ---
 
-##### `allowMergeOnMove`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUProps.property.allowMergeOnMove"></a>
-
-```typescript
-public readonly allowMergeOnMove: boolean;
-```
-
-- *Type:* `boolean`
-- *Default:* false
-
-Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
-
-If this is false and the OU already exists an error will be thrown.
-If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
-and the duplicate, now empty, OU will be deleted.
-
----
-
 ##### `allowRecreateOnUpdate`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUProps.property.allowRecreateOnUpdate"></a>
 
 ```typescript
@@ -322,23 +305,6 @@ public readonly name: string;
 - *Type:* `string`
 
 The name of the OU.
-
----
-
-##### `allowMergeOnMove`<sup>Optional</sup> <a name="@renovosolutions/cdk-library-aws-organization.OUResourceProps.property.allowMergeOnMove"></a>
-
-```typescript
-public readonly allowMergeOnMove: boolean;
-```
-
-- *Type:* `boolean`
-- *Default:* false
-
-Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
-
-If this is false and the OU already exists an error will be thrown.
-If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
-and the duplicate, now empty, OU will be deleted.
 
 ---
 
