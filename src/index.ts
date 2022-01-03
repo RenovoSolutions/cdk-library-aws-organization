@@ -32,15 +32,6 @@ export interface OUProps {
    */
   readonly importOnDuplicate?: boolean;
   /**
-    * Whether or not to merge an OU with a duplicate when an OU is moved between parent OUs.
-    * If this is false and the OU already exists an error will be thrown.
-    * If this is true and the OU already exists the accounts in the OU will be moved to the existing OU
-    * and the duplicate, now empty, OU will be deleted.
-    *
-    * @default false
-    */
-  readonly allowMergeOnMove?: boolean;
-  /**
     * Whether or not a missing OU should be recreated during an update.
     * If this is false and the OU does not exist an error will be thrown when you try to update it.
     */
@@ -115,7 +106,6 @@ export function processOrgObj(this: Construct, provider: custom_resources.Provid
       parent: parentStr,
       name: props.name,
       importOnDuplicate: props.importOnDuplicate,
-      allowMergeOnMove: props.allowMergeOnMove,
       allowRecreateOnUpdate: props.allowRecreateOnUpdate,
     });
 
@@ -219,7 +209,6 @@ export class OrganizationOU extends Construct {
     super(scope, id);
 
     const importOnDuplicate = props.importOnDuplicate ?? false;
-    const allowMergeOnMove = props.allowMergeOnMove ?? false;
     const allowRecreateOnUpdate = props.allowRecreateOnUpdate ?? false;
 
     const parentStr = props.parent instanceof OrganizationOU ? props.parent.resource.ref : props.parent;
@@ -230,7 +219,6 @@ export class OrganizationOU extends Construct {
         Parent: parentStr,
         Name: props.name,
         ImportOnDuplicate: importOnDuplicate,
-        AllowMergeOnMove: allowMergeOnMove,
         AllowRecreateOnUpdate: allowRecreateOnUpdate,
       },
     });

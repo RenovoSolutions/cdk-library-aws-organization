@@ -40,17 +40,16 @@ def does_ou_have_accounts(ou_id):
 
 def on_event(event, context):  
   print(event)
-  allow_merge_on_move = True if event['ResourceProperties']['AllowMergeOnMove'] == "true" else False
   allow_recreate_on_update = True if event['ResourceProperties']['AllowRecreateOnUpdate'] == "true" else False
   import_on_duplicate = True if event['ResourceProperties']['ImportOnDuplicate'] == "true" else False
 
   request_type = event['RequestType']
-  if request_type == 'Create': return on_create(event, allow_merge_on_move, allow_recreate_on_update, import_on_duplicate)
-  if request_type == 'Update': return on_update(event, allow_merge_on_move, allow_recreate_on_update, import_on_duplicate)
+  if request_type == 'Create': return on_create(event, import_on_duplicate)
+  if request_type == 'Update': return on_update(event, allow_recreate_on_update, import_on_duplicate)
   if request_type == 'Delete': return on_delete(event)
   raise Exception('Invalid request type: {}'.format(request_type))
 
-def on_create(event, allow_merge_on_move=False, recreate_on_update=False, import_on_duplicate=False):
+def on_create(event, import_on_duplicate=False):
   try:
     print('Creating OU: {}'.format(event['ResourceProperties']['Name']))
     client = boto3.client('organizations')
@@ -81,17 +80,14 @@ def on_create(event, allow_merge_on_move=False, recreate_on_update=False, import
           }
         }
       else:
-        raise Exception('OU already exists and import is disabled: {}'.format(event['ResourceProperties']['Name']))
+        raise Exception('OU already exists: {}'.format(event['ResourceProperties']['Name']))
     else:
       raise e
     
-def on_update(event, allow_merge_on_move=False, recreate_on_update=False, import_on_duplicate=False):
+def on_update(event, recreate_on_update=False, import_on_duplicate=False):
   if event['ResourceProperties']['Parent'] != event['OldResourceProperties']['Parent']:
-    print('Parent changed for UO and OUs cant be moved, will recreate: Was {}. Now {}'.format(event['OldResourceProperties']['Parent'], event['ResourceProperties']['Parent']))
-    if does_ou_have_accounts(event['PhysicalResourceId']):
-      raise Exception('OU or OU child has accounts as children so OU cannot be recreated. OUs do not support moving directly. Please move accounts to new OU first.')
-    else:
-      return on_create(event, allow_merge_on_move, recreate_on_update, import_on_duplicate)
+    print('Parent changed for UO and OUs cant be moved: Was {}. Now {}'.format(event['OldResourceProperties']['Parent'], event['ResourceProperties']['Parent']))
+    raise Exception('OU parent changed. Organizations does not support moving an OU')
   try:
     print('Updating OU: {} ({})'.format(event['OldResourceProperties']['Name'], event['PhysicalResourceId']))
     client = boto3.client('organizations')
@@ -109,12 +105,12 @@ def on_update(event, allow_merge_on_move=False, recreate_on_update=False, import
     }
   except botocore.exceptions.ClientError as e:
     if e.response['Error']['Code'] == 'DuplicateOrganizationalUnitException':
-      raise Exception('The changes you made to your OU, {}, match another OU that already exists and merging is disabled.'.format(event['ResourceProperties']['Name']))
+      raise Exception('The changes you made to your OU, {}, match another OU that already exists.'.format(event['ResourceProperties']['Name']))
     if e.response['Error']['Code'] == 'OrganizationalUnitNotFoundException':
       if recreate_on_update:
-        return on_create(event, allow_merge_on_move, recreate_on_update, import_on_duplicate)
+        return on_create(event, import_on_duplicate)
       else:
-        raise Exception('The OU you are trying to update, {}, does not exist and creation of missing OUs on update is disabled.'.format(event['OldResourceProperties']['Name']))
+        raise Exception('The OU you are trying to update, {}, does not exist.'.format(event['OldResourceProperties']['Name']))
     else:
       raise e
 

@@ -69,7 +69,7 @@ def test_create_without_import_should_fail_with_exception():
 
   response_json = json.loads(response["Payload"].read())
   assert response['ResponseMetadata']['HTTPStatusCode'] == 200
-  assert response_json['errorMessage'] == 'OU already exists and import is disabled: TestOULib'
+  assert response_json['errorMessage'] == 'OU already exists: TestOULib'
   
 def test_delete_should_delete_ou():
   f = open('events/ou/delete.json', 'r')
@@ -108,7 +108,7 @@ def test_update_when_deleted_should_fail_with_exception():
 
   response_json = json.loads(response["Payload"].read())
   assert response['ResponseMetadata']['HTTPStatusCode'] == 200
-  assert response_json['errorMessage'] == 'The OU you are trying to update, TestOULib, does not exist and creation of missing OUs on update is disabled.'
+  assert response_json['errorMessage'] == 'The OU you are trying to update, TestOULib, does not exist.'
   
 def test_update_with_recreate_should_create_OU_when_old_ou_does_not_exist():
   f = open('events/ou/update-with-recreate.json', 'r')
@@ -150,6 +150,17 @@ def test_deleting_a_parent_with_child_should_fail_with_exception():
   response_json = json.loads(response["Payload"].read())
   assert response['ResponseMetadata']['HTTPStatusCode'] == 200
   assert response_json['Data']['Message'] == 'OU has children and cannot be deleted: TestOULib'
+  
+def test_changing_an_ou_parent_should_fail_with_exception():
+  f = open('events/ou/update-parent.json', 'r')
+  response = lambda_client.invoke(
+    FunctionName=os.getenv("LAMBDA_FUNCTION_NAME"),
+    Payload=f
+  )
+
+  response_json = json.loads(response["Payload"].read())
+  assert response['ResponseMetadata']['HTTPStatusCode'] == 200
+  assert response_json['errorMessage'] == 'OU parent changed. Organizations does not support moving an OU'
 
 def test_cleanup_child():
   f = open('events/ou/delete-child.json', 'r')

@@ -7,16 +7,14 @@
   "PhysicalResourceId": "ou-g9g3-wl83rl0i",
   "ResourceType": "AWS::CloudFormation::CustomResource",
   "ResourceProperties": {
-    "Parent": "r-a1b2",
-    "Name": "TestOULib2",
-    "AllowMergeOnMove": "false",
+    "Parent": "r-a1b3",
+    "Name": "TestOULib",
     "AllowRecreateOnUpdate": "false",
     "ImportOnDuplicate": "false"
   },
   "OldResourceProperties": {
     "Parent": "r-a1b2",
     "Name": "TestOULib",
-    "AllowMergeOnMove": "false",
     "AllowRecreateOnUpdate": "false",
     "ImportOnDuplicate": "false"
   }

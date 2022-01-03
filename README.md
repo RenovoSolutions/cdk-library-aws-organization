@@ -22,3 +22,22 @@ LAMBDA_FUNCTION_NAME='<name you noted earlier>' pytest ./handler_tests/<handler>
 ```
 RUN_LOCALLY='false' LAMBDA_FUNCTION_NAME='<name from AWS>' pytest ./handler_tests/<handler>/test.py -rA --capture=sys
 ```
+
+## Why can't I move an OU?
+Moving OUs isn't supported by Organizations and would cause significant issues with keeping track of OUs in the CDK. Imagine a scenario like below:
+- You have an ou, `OUAdmin`, and it has 2 children, `OUChild1 and Account1`, that are also managed by the CDK stack.
+- You change the parent of `OUAdmin` to `OUFoo`. The CDK would need to take the following actions:
+  - Create a new `OU` under `OUFoo` with the name `OUAdmin`
+  - Move all of the original `OUAdmin` OU's children to the new `OUAdmin`
+  - Delete the old `OUAdmin`
+  - Update all physical resource IDs
+    - It would succeed at moving accounts because physical IDs should not change. Accounting moving between OUs is supported by Organizations
+    - It would fail at moving any child OUs because they would also be recreated. Resulting in a change to physical resource ID. Because the custom resource can only managed the resource it's currently acting on, `OUAdmin`, any children OUs would be "lost" in this process and ugly to try and manage.
+
+The best way to move OUs would be to add additional OUs to your org then move any accounts as needed then proceed to delete the OUs, like so:
+- Add new OU resources
+- Deploy the stack
+- Change account parents
+- Deploy the stack
+- Remove old OU resources
+- Deploy the stack

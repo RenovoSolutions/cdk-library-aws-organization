@@ -9,7 +9,6 @@
   "ResourceProperties": {
     "Parent": "r-a1b2",
     "Name": "TestOULib",
-    "AllowMergeOnMove": "false",
     "AllowRecreateOnUpdate": "false",
     "ImportOnDuplicate": "false"
   }
