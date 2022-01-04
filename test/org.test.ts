@@ -2,39 +2,45 @@ import { Stack, App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import {
   OrganizationOUProvider,
-  OrgObjectTypes,
-  OrgObject,
-  processOrgObj,
+  OUObject,
+  processOUObj,
+  OrganizationAccountProvider,
 } from '../src/index';
 
 test('Snapshot', () => {
   const app = new App();
   const stack = new Stack(app, 'TestStack');
 
-  const provider = new OrganizationOUProvider(stack, 'OrganizationOUProvider', {}).provider;
+  const ouProvider = new OrganizationOUProvider(stack, 'OrganizationOUProvider', {}).provider;
+  const accountProvider = new OrganizationAccountProvider(stack, 'OrganizationAccountProvider', {}).provider;
 
-  const orgStructure: OrgObject[] = [
+  const orgStructure: OUObject[] = [
     {
       id: 'ou-301416f8',
       properties: {
         name: 'TestOU',
       },
-      type: OrgObjectTypes.OU,
       children: [
         {
           id: 'ou-df425b37',
           properties: {
             name: 'TestOUChild',
           },
-          type: OrgObjectTypes.OU,
-          children: [],
+          children: [
+          ],
+          accounts: [
+            {
+              name: 'TestAccount',
+              email: 'test@example.com',
+            },
+          ],
         },
       ],
     },
   ];
 
   orgStructure.forEach(obj => {
-    processOrgObj.call(stack, provider, obj, 'r-a1b2');
+    processOUObj.call(stack, ouProvider, accountProvider, obj, 'r-a1b2');
   });
 
   expect(Template.fromStack(stack)).toMatchSnapshot();

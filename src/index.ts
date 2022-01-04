@@ -10,14 +10,6 @@ import {
 import { Construct } from 'constructs';
 
 /**
- * The supported OrgObject types
- */
-export enum OrgObjectTypes {
-  OU = 'ou',
-  ACCOUNT = 'account',
-}
-
-/**
  * The properties of an OU
  */
 export interface OUProps {
@@ -26,15 +18,18 @@ export interface OUProps {
    */
   readonly name: string;
   /**
-   * Whether or not to import an existing OU if the new OU is a duplicate. If this is false and the OU already exists an error will be thrown.
+   * Whether or not to import an existing OU if the new OU is a duplicate.
+   * If this is false and the OU already exists an error will be thrown.
    *
    * @default false
    */
   readonly importOnDuplicate?: boolean;
   /**
-    * Whether or not a missing OU should be recreated during an update.
-    * If this is false and the OU does not exist an error will be thrown when you try to update it.
-    */
+   * Whether or not a missing OU should be recreated during an update.
+   * If this is false and the OU does not exist an error will be thrown when you try to update it.
+   *
+   * @default false
+   */
   readonly allowRecreateOnUpdate?: boolean;
 };
 
@@ -50,21 +45,48 @@ export interface AccountProps {
    * The email address of the account. Most be unique.
    */
   readonly email: string;
+  /**
+   * Whether or not to import an existing account if the new account is a duplicate.
+   * If this is false and the account already exists an error will be thrown.
+   *
+   * @default false
+   */
+  readonly importOnDuplicate?: boolean;
+  /**
+   * Whether or not to allow this account to be moved between OUs. If importing is enabled
+   * this will also allow imported accounts to be moved.
+   *
+   * @default false
+   */
+  readonly allowMove?: boolean;
+  /**
+   * Whether or not attempting to delete an account should raise an error.
+   *
+   * Accounts cannot be deleted programmatically, but they can be removed as a managed resource.
+   * This property will allow you to control whether or not an error is thrown
+   * when the stack wants to delete an account (orphan it) or if it should continue
+   * silently.
+   *
+   * @see https://aws.amazon.com/premiumsupport/knowledge-center/close-aws-account/
+   *
+   * @default false
+   */
+  readonly disableDelete?: boolean;
 };
 
 /**
  * The structure of an OrgObject
  */
-export interface OrgObject {
+export interface OUObject {
   /**
-   * The unique id of the OrgObject. This is used as the unique identifier when instantiating a construct object.
+   * The unique id of the OUObject. This is used as the unique identifier when instantiating a construct object.
    * This is important for the CDK to be able to maintain a reference for the object when utilizing
-   * the processOrgObj function rather then using the name property of an object which could change.
+   * the processOUObj function rather then using the name property of an object which could change.
    * If the id changes the CDK treats this as a new construct and will create a new construct resource and
    * destroy the old one.
    *
-   * Not strictly required but useful when using the processOrgObj function. If the id is not provided
-   * the name property will be used as the id in processOrgObj.
+   * Not strictly required but useful when using the processOUObj function. If the id is not provided
+   * the name property will be used as the id in processOUObj.
    *
    * You can create a unique id however you like. A bash example is provided.
    * @example
@@ -72,47 +94,62 @@ export interface OrgObject {
    */
   readonly id?: string;
   /**
-   * The org object properties.
+   * The OU object properties.
    */
-  readonly properties: OUProps | AccountProps;
+  readonly properties: OUProps;
   /**
-   * The type of the org object.
+   * Accounts that belong to this OU
    */
-  readonly type: OrgObjectTypes;
+  readonly accounts?: AccountProps[];
   /**
-   * Other org objects that are children of this org object.
+   * OUs that are children of this OU
    */
-  readonly children: OrgObject[];
+  readonly children: OUObject[];
 }
 
 /**
- * @function processOrgObj
+ * @function processOUObj
  * Function to process an OrgObject and create the corresponding AWS resources
  *
  * @param {Construct} this The construct resources will be added to.
- * @param {custom_resources.Provider} provider The custom resource provider the custom resources will utilized to create the resources.
- * @param {OrgObject} obj The OrgObject to process.
+ * @param {custom_resources.Provider} ouProvider The custom resource provider for managing OUs
+ * @param {custom_resources.Provider} accountProvider The custom resource provider for managing accounts
+ * @param {OUObject} obj The OrgObject to process.
  * @param {string | OrganizationOU} parent The parent of the OrgObject. This is either a string, like for the org root, or an OrganizationOU object from the same stack.
  */
-export function processOrgObj(this: Construct, provider: custom_resources.Provider, obj: OrgObject, parent: string | OrganizationOU) {
-  if (obj.type === OrgObjectTypes.OU) {
-    const parentStr = parent instanceof OrganizationOU ? parent.resource.ref : parent;
+export function processOUObj(
+  this: Construct,
+  ouProvider: custom_resources.Provider,
+  accountProvider: custom_resources.Provider,
+  obj: OUObject,
+  parent: string | OrganizationOU,
+) {
+  const parentStr = parent instanceof OrganizationOU ? parent.resource.ref : parent;
+  let id = obj.id ?? obj.properties.name;
 
-    let props: OUProps = obj.properties;
-    let id = obj.id ?? obj.properties.name;
+  const ou = new OrganizationOU(this, id, {
+    provider: ouProvider,
+    parent: parentStr,
+    name: obj.properties.name,
+    importOnDuplicate: obj.properties.importOnDuplicate,
+    allowRecreateOnUpdate: obj.properties.allowRecreateOnUpdate,
+  });
 
-    const ou = new OrganizationOU(this, id, {
-      provider,
-      parent: parentStr,
-      name: props.name,
-      importOnDuplicate: props.importOnDuplicate,
-      allowRecreateOnUpdate: props.allowRecreateOnUpdate,
+  obj.accounts?.forEach((account) => {
+    new OrganizationAccount(this, `${account.name}-${account.email.replace(/[^a-zA-Z ]/g, '')}`, {
+      provider: accountProvider,
+      parent: ou,
+      name: account.name,
+      email: account.email,
+      importOnDuplicate: account.importOnDuplicate,
+      allowMove: account.allowMove,
+      disableDelete: account.disableDelete,
     });
+  });
 
-    obj.children.forEach(child => {
-      processOrgObj.call(this, provider, child, ou);
-    });
-  }
+  obj.children.forEach(child => {
+    processOUObj.call(this, ouProvider, accountProvider, child, ou);
+  });
 }
 
 /**
@@ -229,29 +266,118 @@ export class OrganizationOU extends Construct {
   }
 }
 
-// export interface OrganizationAccountProps {
-//   /**
-//    * The name of the account
-//    */
-//    readonly name: string;
-//   /**
-//    * The email for the account
-//    */
-//    readonly email: string;
-//   /**
-//   * The OU id for the account. This property is always preferred if id and name are both given. Defaults to the root
-//   */
-//    readonly ou_id?: string;
-//   /**
-//    * The OU name for the account. This property is ignored if the ou id is given.
-//    */
-//    readonly ou_name?: string;
-// }
+/**
+ * The properties for the account custom resource provider.
+ */
+export interface OrganizationAccountProviderProps {
+  /**
+   * The role the custom resource should use for taking actions on OUs if one is not provided one will be created automatically
+   */
+  readonly role?: iam.IRole;
+}
 
-// export class OrganizationAccount extends Construct {
-//   constructor(scope: Construct, id: string, props: OrganizationAccountProps) {
-//     super(scope, id);
+/**
+ * The provider for account custom resources
+ *
+ * This creates a lambda function that handles custom resource requests for creating/updating accounts.
+ */
+export class OrganizationAccountProvider extends Construct {
 
-//     // code
-//   }
-// }
+  public readonly provider: custom_resources.Provider;
+
+  constructor(scope: Construct, id: string, props: OrganizationOUProviderProps) {
+    super(scope, id);
+
+    let role: iam.IRole;
+
+    if (!props.role) {
+      role = new iam.Role(this, 'role', {
+        assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      });
+
+      let policy = new iam.ManagedPolicy(this, 'policy', {
+        statements: [
+          new iam.PolicyStatement({
+            actions: [
+              'organizations:ListOrganizationalUnitsForParent',
+              'organizations:ListAccountsForParent',
+              'organizations:ListRoots',
+              'organizations:MoveAccount',
+            ],
+            resources: ['*'],
+          }),
+        ],
+      });
+
+      role.addManagedPolicy(policy);
+      role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
+    } else {
+      role = props.role;
+    }
+
+    const handlersPath = path.join(__dirname, '../handlers');
+
+    const onEvent = new lambda.Function(this, 'handler', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(handlersPath + '/account'),
+      handler: 'index.on_event',
+      timeout: Duration.seconds(300),
+      role,
+    });
+
+    this.provider = new custom_resources.Provider(this, 'provider', {
+      onEventHandler: onEvent,
+      logRetention: logs.RetentionDays.ONE_DAY,
+    });
+  }
+}
+
+/**
+ * The properties of an OrganizationAccount custom resource.
+ */
+export interface AccountResourceProps extends AccountProps {
+  /**
+   * The parent OU id
+   */
+  readonly parent: string | OrganizationOU;
+  /**
+   * The provider to use for the custom resource that will create the OU. You can create a provider with the OrganizationOuProvider class
+   */
+  readonly provider: custom_resources.Provider;
+}
+
+/**
+ * The construct to create or update an Organization account
+ *
+ * This relies on the custom resource provider OrganizationAccountProvider.
+*/
+export class OrganizationAccount extends Construct {
+
+  public readonly resource: CustomResource;
+
+  constructor(scope: Construct, id: string, props: AccountResourceProps) {
+    super(scope, id);
+
+    const importOnDuplicate = props.importOnDuplicate ?? false;
+    const allowMove = props.allowMove ?? false;
+    const disableDelete = props.disableDelete ?? false;
+
+    const parentStr = props.parent instanceof OrganizationOU ? props.parent.resource.ref : props.parent;
+
+    this.resource = new CustomResource(this, 'ou', {
+      serviceToken: props.provider.serviceToken,
+      properties: {
+        Parent: parentStr,
+        Name: props.name,
+        ImportOnDuplicate: importOnDuplicate,
+        AllowMove: allowMove,
+        DisableDelete: disableDelete,
+      },
+    });
+
+    this.resource.node.addDependency(props.provider);
+    if (props.parent instanceof OrganizationOU) {
+      this.resource.node.addDependency(props.parent);
+    };
+  }
+}
