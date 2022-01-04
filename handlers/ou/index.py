@@ -116,13 +116,6 @@ def on_delete(event):
         }
       }
     if e.response['Error']['Code'] == 'OrganizationalUnitNotEmptyException':
-      msg = 'OU has children and cannot be deleted: {}'.format(event['ResourceProperties']['Name'])
-      print(msg)
-      return {
-        'PhysicalResourceId': event['PhysicalResourceId'],
-        'Data': {
-          'Message': msg
-        }
-      }
+      raise Exception('OU has children and cannot be deleted: {}'.format(event['ResourceProperties']['Name']))
     else:
       raise e

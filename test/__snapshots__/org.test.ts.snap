@@ -88,6 +88,200 @@ Object {
       },
       "Type": "AWS::IAM::Policy",
     },
+    "OrganizationAccountProviderhandlerEAF7C45E": Object {
+      "DependsOn": Array [
+        "OrganizationAccountProviderroleFD0EE157",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "fc9311e713c07a9c742f5cf13efe2d6c72720661fb4140d74c204ce374096fa7.zip",
+        },
+        "Handler": "index.on_event",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "OrganizationAccountProviderroleFD0EE157",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.9",
+        "Timeout": 300,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "OrganizationAccountProviderpolicy92ABFDF8": Object {
+      "Properties": Object {
+        "Description": "",
+        "Path": "/",
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "organizations:ListOrganizationalUnitsForParent",
+                "organizations:ListAccountsForParent",
+                "organizations:ListRoots",
+                "organizations:MoveAccount",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::ManagedPolicy",
+    },
+    "OrganizationAccountProviderproviderframeworkonEventA1FDA928": Object {
+      "DependsOn": Array [
+        "OrganizationAccountProviderproviderframeworkonEventServiceRoleDefaultPolicy05A6AEB5",
+        "OrganizationAccountProviderproviderframeworkonEventServiceRole082F1D31",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "c691172cdeefa2c91b5a2907f9d81118e47597634943344795f1a844192dd49c.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (TestStack/OrganizationAccountProvider/provider)",
+        "Environment": Object {
+          "Variables": Object {
+            "USER_ON_EVENT_FUNCTION_ARN": Object {
+              "Fn::GetAtt": Array [
+                "OrganizationAccountProviderhandlerEAF7C45E",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "OrganizationAccountProviderproviderframeworkonEventServiceRole082F1D31",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "OrganizationAccountProviderproviderframeworkonEventLogRetentionB1D63354": Object {
+      "Properties": Object {
+        "LogGroupName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "/aws/lambda/",
+              Object {
+                "Ref": "OrganizationAccountProviderproviderframeworkonEventA1FDA928",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 1,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::LogRetention",
+    },
+    "OrganizationAccountProviderproviderframeworkonEventServiceRole082F1D31": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "OrganizationAccountProviderproviderframeworkonEventServiceRoleDefaultPolicy05A6AEB5": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "OrganizationAccountProviderhandlerEAF7C45E",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "OrganizationAccountProviderproviderframeworkonEventServiceRoleDefaultPolicy05A6AEB5",
+        "Roles": Array [
+          Object {
+            "Ref": "OrganizationAccountProviderproviderframeworkonEventServiceRole082F1D31",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "OrganizationAccountProviderroleFD0EE157": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Ref": "OrganizationAccountProviderpolicy92ABFDF8",
+          },
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "OrganizationOUProviderhandler080F4AD3": Object {
       "DependsOn": Array [
         "OrganizationOUProviderroleA45081DC",
@@ -97,7 +291,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "2cf267c9fd99007ae3107fed7bc21af39968df087574a74832ea7e70a5b526c3.zip",
+          "S3Key": "1643920eba039dd841dcbd5ddb8cb00e06b7ab87967932add57b697b739d7c29.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -281,6 +475,33 @@ Object {
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "TestAccounttestexamplecomouCFF56022": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "OrganizationAccountProviderproviderframeworkonEventLogRetentionB1D63354",
+        "OrganizationAccountProviderproviderframeworkonEventA1FDA928",
+        "OrganizationAccountProviderproviderframeworkonEventServiceRoleDefaultPolicy05A6AEB5",
+        "OrganizationAccountProviderproviderframeworkonEventServiceRole082F1D31",
+        "oudf425b37ou574381B2",
+      ],
+      "Properties": Object {
+        "AllowMove": false,
+        "DisableDelete": false,
+        "ImportOnDuplicate": false,
+        "Name": "TestAccount",
+        "Parent": Object {
+          "Ref": "oudf425b37ou574381B2",
+        },
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "OrganizationAccountProviderproviderframeworkonEventA1FDA928",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
     },
     "ou301416f8ouDD4B1D0E": Object {
       "DeletionPolicy": "Delete",
