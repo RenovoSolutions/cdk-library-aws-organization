@@ -1,5 +1,6 @@
 import boto3
 import time
+import json
 
 def search_ou_for_account(ou, name, email):
   client = boto3.client('organizations')
@@ -71,7 +72,15 @@ def move_account(account_id, source_ou, destination_ou):
   )
   return 'Account moved from {} to {}'.format(source_ou, destination_ou)
 
+def check_for_required_prop(event, prop):
+  if prop not in event['ResourceProperties']:
+    raise Exception('Required property not found: {}'.format(prop))
+
 def on_event(event, context):
+  print(event)
+  check_for_required_prop(event, 'Name')
+  check_for_required_prop(event, 'Email')
+  check_for_required_prop(event, 'Parent')
   import_on_duplicate = False
   allow_move = False
   disable_delete = False

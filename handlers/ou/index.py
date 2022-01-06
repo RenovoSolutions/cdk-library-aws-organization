@@ -14,8 +14,14 @@ def get_ou_id(event):
 
   raise Exception('OuNotFoundException')
 
+def check_for_required_prop(event, prop):
+  if prop not in event['ResourceProperties']:
+    raise Exception('Required property not found: {}'.format(prop))
+
 def on_event(event, context):  
   print(event)
+  check_for_required_prop(event, 'Name')
+  check_for_required_prop(event, 'Parent')
   allow_recreate_on_update = False
   import_on_duplicate = False
   try:
