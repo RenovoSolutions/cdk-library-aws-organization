@@ -97,7 +97,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "0cd5206a8d9b08f8135770a304f9c28303ba9457bac2474306d59aaa8c47c6c1.zip",
+          "S3Key": "1f796b7caf87f29b9291ee6b0344e981fe58d04ca3f3816789d157417046047c.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -294,7 +294,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "686a4d7c54a1ddeb61aa6fd3ee2dd61897a21162d36c77dbb12e4207f064b44b.zip",
+          "S3Key": "6d9e8f45055c589bc3b16e4a0bccad35baa25617297eae28b04154c13a55eea1.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -491,6 +491,7 @@ Object {
       "Properties": Object {
         "AllowMove": false,
         "DisableDelete": false,
+        "Email": "test@example.com",
         "ImportOnDuplicate": false,
         "Name": "TestAccount",
         "Parent": Object {
