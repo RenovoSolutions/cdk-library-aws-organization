@@ -16,8 +16,16 @@ def get_ou_id(event):
 
 def on_event(event, context):  
   print(event)
-  allow_recreate_on_update = True if event['ResourceProperties']['AllowRecreateOnUpdate'] == "true" else False
-  import_on_duplicate = True if event['ResourceProperties']['ImportOnDuplicate'] == "true" else False
+  allow_recreate_on_update = False
+  import_on_duplicate = False
+  try:
+    allow_recreate_on_update = True if event['ResourceProperties']['AllowRecreateOnUpdate'] == "true" else False
+  except KeyError as e:
+    print('No AllowRecreateOnUpdate property found. Defaulting to false')
+  try:
+    import_on_duplicate = True if event['ResourceProperties']['ImportOnDuplicate'] == "true" else False
+  except KeyError as e:
+    print('No ImportOnDuplicate property found. Defaulting to false')
 
   request_type = event['RequestType']
   if request_type == 'Create': return on_create(event, import_on_duplicate)
