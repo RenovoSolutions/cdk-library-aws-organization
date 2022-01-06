@@ -97,7 +97,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "1f796b7caf87f29b9291ee6b0344e981fe58d04ca3f3816789d157417046047c.zip",
+          "S3Key": "1b523852c4a5e50c0ea01873efdbc91cb66894aa55814eedabce78a82a2f8143.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -294,7 +294,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "6d9e8f45055c589bc3b16e4a0bccad35baa25617297eae28b04154c13a55eea1.zip",
+          "S3Key": "e132818ee3288115b6dcb1ac0d011ec4748071864ea4d3841ec959c1e779e3bd.zip",
         },
         "Handler": "index.on_event",
         "Role": Object {
@@ -304,7 +304,7 @@ Object {
           ],
         },
         "Runtime": "python3.9",
-        "Timeout": 10,
+        "Timeout": 60,
       },
       "Type": "AWS::Lambda::Function",
     },

@@ -1,6 +1,7 @@
 import boto3
+import botocore
+from time import sleep
 import time
-import json
 
 def search_ou_for_account(ou, name, email):
   client = boto3.client('organizations')
@@ -65,11 +66,26 @@ def check_account_creation_status(create_id):
 def move_account(account_id, source_ou, destination_ou):
   print('Will move account ({}) from {} to {}'.format(account_id, source_ou, destination_ou))
   client = boto3.client('organizations')
-  client.move_account(
-    AccountId=account_id,
-    SourceParentId=source_ou,
-    DestinationParentId=destination_ou
-  )
+  retries = 10
+  tries = 1
+  while tries <= retries:
+    try:
+      client.move_account(
+        AccountId=account_id,
+        SourceParentId=source_ou,
+        DestinationParentId=destination_ou
+      )
+      break
+    except botocore.exceptions.ClientError as e:
+      if e.response['Error']['Code'] == 'ConcurrentModificationException':
+        print('ConcurrentModificationException while moving account {}, retrying... ({}/{})'.format(account_id, tries, retries))
+        sleep(2)
+        tries += 1
+        if tries > retries:
+          raise e
+        continue
+      else:
+        raise e
   return 'Account moved from {} to {}'.format(source_ou, destination_ou)
 
 def check_for_required_prop(event, prop):
@@ -135,10 +151,26 @@ def on_create(event, import_on_duplicate=False, allow_move=False):
     if e == 'AccountNotFoundException':
       print('No existing account found with these properties ({}, {}), sending new account creation request'.format(event['ResourceProperties']['Name'], event['ResourceProperties']['Email']))
       client = boto3.client('organizations')
-      response = client.create_account(
-        Email=event['ResourceProperties']['Email'],
-        AccountName=event['ResourceProperties']['Name'],
-      )
+      retries = 10
+      tries = 1
+      while tries <= retries:
+        try:
+          response = client.create_account(
+            Email=event['ResourceProperties']['Email'],
+            AccountName=event['ResourceProperties']['Name'],
+          )
+          break
+        except botocore.exceptions.ClientError as e:
+          if e.response['Error']['Code'] == 'ConcurrentModificationException':
+            print('ConcurrentModificationException while creating account {}, retrying... ({}/{})'.format(event['ResourceProperties']['Name'], tries, retries))
+            sleep(2)
+            tries += 1
+            if tries > retries:
+              raise e
+            continue
+          else:
+            raise e
+          
       creation_id = response['CreateAccountStatus']['Id']
       create_status = check_account_creation_status(creation_id)
       while create_status['State'] == 'IN_PROGRESS':
@@ -156,11 +188,27 @@ def on_create(event, import_on_duplicate=False, allow_move=False):
           if root['Id'] == event['ResourceProperties']['Parent']:
             print('Account already in expected OU: {} ({})'.format(root["Name"], root["Id"]))
           else:
-            response = client.move_account(
-              AccountId=create_status['AccountId'],
-              SourceParentId=root['Id'],
-              DestinationParentId=event['ResourceProperties']['Parent']
-            )
+            retries = 10
+            tries = 1
+            while tries <= retries:
+              try:
+                response = client.move_account(
+                  AccountId=create_status['AccountId'],
+                  SourceParentId=root['Id'],
+                  DestinationParentId=event['ResourceProperties']['Parent']
+                )
+                break
+              except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'ConcurrentModificationException':
+                  print('ConcurrentModificationException while moving account {}, retrying... ({}/{})'.format(create_status['AccountId'], tries, retries))
+                  sleep(2)
+                  tries += 1
+                  if tries > retries:
+                    raise e
+                  continue
+                else:
+                  raise e
+            
             print('Account moved to OU: {} ({})'.format(root["Name"], root["Id"]))
             msg = 'Account created with id {} and moved to OU {}'.format(create_status['AccountId'], root["Id"])
             print(msg)
