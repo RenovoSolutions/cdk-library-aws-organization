@@ -20,11 +20,11 @@ def on_event(event, context):
   import_on_duplicate = False
   try:
     allow_recreate_on_update = True if event['ResourceProperties']['AllowRecreateOnUpdate'] == "true" else False
-  except KeyError as e:
+  except KeyError:
     print('No AllowRecreateOnUpdate property found. Defaulting to false')
   try:
     import_on_duplicate = True if event['ResourceProperties']['ImportOnDuplicate'] == "true" else False
-  except KeyError as e:
+  except KeyError:
     print('No ImportOnDuplicate property found. Defaulting to false')
 
   request_type = event['RequestType']

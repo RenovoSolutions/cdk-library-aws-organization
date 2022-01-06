@@ -72,9 +72,21 @@ def move_account(account_id, source_ou, destination_ou):
   return 'Account moved from {} to {}'.format(source_ou, destination_ou)
 
 def on_event(event, context):
-  import_on_duplicate = True if event['ResourceProperties']['ImportOnDuplicate'] == "true" else False
-  allow_move = True if event['ResourceProperties']['AllowMove'] == "true" else False
-  disable_delete = True if event['ResourceProperties']['DisableDelete'] == "true" else False
+  import_on_duplicate = False
+  allow_move = False
+  disable_delete = False
+  try:
+    import_on_duplicate = True if event['ResourceProperties']['ImportOnDuplicate'] == "true" else False
+  except KeyError:
+    print('No ImportOnDuplicate property found, defaulting to false')
+  try:
+    allow_move = True if event['ResourceProperties']['AllowMove'] == "true" else False
+  except KeyError:
+    print('No AllowMove property found, defaulting to false')
+  try:
+    disable_delete = True if event['ResourceProperties']['DisableDelete'] == "true" else False
+  except KeyError:
+    print('No DisableDelete property found, defaulting to false')
 
   print(event)
   request_type = event['RequestType']
