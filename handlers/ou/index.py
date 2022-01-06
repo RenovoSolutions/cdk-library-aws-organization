@@ -56,7 +56,7 @@ def on_create(event, import_on_duplicate=False):
       except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == 'ConcurrentModificationException':
           print('ConcurrentModificationException while creating {}, retrying... ({}/{})'.format(event['ResourceProperties']['Name'], tries, retries))
-          sleep.sleep(2)
+          sleep(2)
           tries += 1
           if tries > retries:
             raise e

@@ -1,7 +1,6 @@
 import boto3
 import botocore
 from time import sleep
-import time
 
 def search_ou_for_account(ou, name, email):
   client = boto3.client('organizations')
@@ -175,7 +174,7 @@ def on_create(event, import_on_duplicate=False, allow_move=False):
       create_status = check_account_creation_status(creation_id)
       while create_status['State'] == 'IN_PROGRESS':
         print(f'Waiting for account creation request ({response["CreateAccountStatus"]["Id"]}) to finish. (Sleeping 5 seconds)')
-        time.sleep(5)
+        sleep(5)
         create_status = check_account_creation_status(creation_id)
           
       if create_status['State'] == 'FAILED':
