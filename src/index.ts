@@ -372,6 +372,7 @@ export class OrganizationAccount extends Construct {
       properties: {
         Parent: parentStr,
         Name: props.name,
+        Email: props.email,
         ImportOnDuplicate: importOnDuplicate,
         AllowMove: allowMove,
         DisableDelete: disableDelete,
