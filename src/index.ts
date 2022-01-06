@@ -207,7 +207,7 @@ export class OrganizationOUProvider extends Construct {
       runtime: lambda.Runtime.PYTHON_3_9,
       code: lambda.Code.fromAsset(handlersPath + '/ou'),
       handler: 'index.on_event',
-      timeout: Duration.seconds(10),
+      timeout: Duration.seconds(60),
       role,
     });
 

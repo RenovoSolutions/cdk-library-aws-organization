@@ -1,5 +1,6 @@
 import boto3
 import botocore
+from time import sleep
 
 def get_ou_id(event):
   organizations = boto3.client('organizations')
@@ -43,10 +44,25 @@ def on_create(event, import_on_duplicate=False):
   try:
     print('Creating OU: {}'.format(event['ResourceProperties']['Name']))
     client = boto3.client('organizations')
-    response = client.create_organizational_unit(
-      ParentId=event['ResourceProperties']['Parent'],
-      Name=event['ResourceProperties']['Name']
-    )
+    retries = 10
+    tries = 1
+    while tries <= retries:
+      try:
+        response = client.create_organizational_unit(
+          ParentId=event['ResourceProperties']['Parent'],
+          Name=event['ResourceProperties']['Name']
+        )
+        break
+      except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'ConcurrentModificationException':
+          print('ConcurrentModificationException while creating {}, retrying... ({}/{})'.format(event['ResourceProperties']['Name'], tries, retries))
+          sleep.sleep(2)
+          tries += 1
+          if tries > retries:
+            raise e
+          continue
+        else:
+          raise e
     msg = 'Created new OU: {}'.format(event['ResourceProperties']['Name'])
     print(msg)
     print('OU id is: {}'.format(response['OrganizationalUnit']['Id']))
@@ -81,10 +97,26 @@ def on_update(event, recreate_on_update=False, import_on_duplicate=False):
   try:
     print('Updating OU: {} ({})'.format(event['OldResourceProperties']['Name'], event['PhysicalResourceId']))
     client = boto3.client('organizations')
-    response = client.update_organizational_unit(
-      OrganizationalUnitId=event['PhysicalResourceId'],
-      Name=event['ResourceProperties']['Name']
-    )
+    retries = 10
+    tries = 1
+    while tries <= retries:
+      try:
+        client.update_organizational_unit(
+          OrganizationalUnitId=event['PhysicalResourceId'],
+          Name=event['ResourceProperties']['Name']
+        )
+        break
+      except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'ConcurrentModificationException':
+          print('ConcurrentModificationException while trying to update {}. Retrying... ({}/{})'.format(event['PhysicalResourceId'], tries, retries))
+          sleep(2)
+          tries += 1
+          if tries > retries:
+            raise e
+          continue
+        else:
+          raise e
+    
     msg = 'Updated OU: {} ({})'.format(event['ResourceProperties']['Name'], event['PhysicalResourceId'])
     print(msg)
     return {
@@ -108,9 +140,24 @@ def on_delete(event):
   try:
     print('Deleting OU: {}'.format(event['ResourceProperties']['Name']))
     client = boto3.client('organizations')
-    client.delete_organizational_unit(
-      OrganizationalUnitId=event['PhysicalResourceId']
-    )
+    retries = 10
+    tries = 1
+    while tries <= retries:
+      try:
+        client.delete_organizational_unit(
+          OrganizationalUnitId=event['PhysicalResourceId']
+        )
+        break
+      except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'ConcurrentModificationException':
+          print('ConcurrentModificationException while trying to delete {}. Retrying... ({}/{})'.format(event['PhysicalResourceId'], tries, retries))
+          sleep(2)
+          tries += 1
+          if tries > retries:
+            raise e
+          continue
+        else:
+          raise e
     msg = 'Deleted OU: {}'.format(event['ResourceProperties']['Name'])
     print(msg)
     return {
