@@ -26,9 +26,7 @@ jobs:
         run: yarn install --check-files --frozen-lockfile
       - name: Run upgrade script
         id: 'upgrade_cdk_script'
-        uses: renovosolutions/gh-action-awscdk-projen-version-bump
-        with:
-          ref: master
+        uses: renovosolutions/gh-action-awscdk-projen-version-bump@v1.1.1
       - name: Build
         id: build
         run: npx projen build && echo "::set-output name=conclusion::success" || echo
