@@ -78,6 +78,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
       timers: 'fake',
     },
   },
+  mutableBuild: false,
   workflowNodeVersion: '14.17.0',
   gitignore: ['**/__pycache__/**'],
 });
