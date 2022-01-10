@@ -20,7 +20,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c13434f8f1aa2ea30fa577b2feb208a41368b11787b752e10bfc71fe8eb919d5.zip",
+          "S3Key": "6c0316fef24d0df8a9a705c77052001217d864f49af386539d01df54618cd131.zip",
         },
         "Handler": "index.handler",
         "Role": Object {
@@ -146,7 +146,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c691172cdeefa2c91b5a2907f9d81118e47597634943344795f1a844192dd49c.zip",
+          "S3Key": "598fb6cff8e638be6d00a6a4d728d795cc8f563ff24122bb1ab518c1530e24d8.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (TestStack/OrganizationAccountProvider/provider)",
         "Environment": Object {
@@ -340,7 +340,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c691172cdeefa2c91b5a2907f9d81118e47597634943344795f1a844192dd49c.zip",
+          "S3Key": "598fb6cff8e638be6d00a6a4d728d795cc8f563ff24122bb1ab518c1530e24d8.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (TestStack/OrganizationOUProvider/provider)",
         "Environment": Object {
