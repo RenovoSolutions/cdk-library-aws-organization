@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Upgrade CDK Version
         id: 'upgrade_cdk_version'
-        uses: renovosolutions/gh-action-awscdk-projen-version-bump@v2.1.0
+        uses: renovosolutions/gh-action-awscdk-projen-version-bump@v2.1.1
     container:
       image: jsii/superchain:1-buster-slim-node14
   pr:
