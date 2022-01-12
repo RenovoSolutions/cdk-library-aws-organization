@@ -2,7 +2,7 @@ const { awscdk, javascript } = require('projen');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Renovo Solutions',
   authorAddress: 'webmaster+cdk@renovo1.com',
-  cdkVersion: '2.4.0',
+  cdkVersion: '2.5.0',
   defaultReleaseBranch: 'master',
   name: '@renovosolutions/cdk-library-aws-organization',
   description: 'AWS CDK Construct Library to manage specific AWS Organization resources',
