@@ -9,8 +9,8 @@ jobs:
     permissions:
       contents: read
     outputs:
-      build_conclusion: ${{ steps.upgrade_cdk_versions.outputs.build_conclusion }}
-      patch_created: ${{ steps.upgrade_cdk_versions.outputs.patch_created }}
+      build_conclusion: ${{ steps.upgrade_cdk_version.outputs.build_conclusion }}
+      patch_created: ${{ steps.upgrade_cdk_version.outputs.patch_created }}
     steps:
       - name: Upgrade CDK Version
         id: 'upgrade_cdk_version'
