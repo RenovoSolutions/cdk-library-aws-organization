@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Upgrade CDK Version
         id: 'upgrade_cdk_version'
-        uses: renovosolutions/gh-action-awscdk-projen-version-bump@v2.1.7
+        uses: renovosolutions/gh-action-awscdk-projen-version-bump@v2.1.8
   pr:
     if: needs.upgrade-cdk.outputs.patch_created
     name: Create Pull Request
