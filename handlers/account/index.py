@@ -147,7 +147,7 @@ def on_create(event, import_on_duplicate=False, allow_move=False):
     else:
       raise Exception('Account already exists, will NOT import: {} exists in {} ({})'.format(existing_account_info[0], existing_account_info[2], existing_account_info[1]))
   except Exception as e:
-    if e == 'AccountNotFoundException':
+    if e.value == 'AccountNotFoundException':
       print('No existing account found with these properties ({}, {}), sending new account creation request'.format(event['ResourceProperties']['Name'], event['ResourceProperties']['Email']))
       client = boto3.client('organizations')
       retries = 10
