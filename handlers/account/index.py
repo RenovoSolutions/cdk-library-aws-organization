@@ -54,7 +54,7 @@ def get_account_id(name, email):
 
       for account in accounts:
           if account['Name'] == name and account['Email'] == email:
-              return [account['Id'], root, root['Name']]
+              return [account['Id'], root['Id'], root['Name']]
 
     raise AccountNotFoundException('The account you are trying to get an id for ({}) does not exist.'.format(name))
   
