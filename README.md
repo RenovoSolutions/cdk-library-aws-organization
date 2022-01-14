@@ -19,13 +19,13 @@ This CDK library is a WIP and not ready for production use.
 - Run `sam local start-lambda -t template.yml`
 - Run the `handler_tests` python files with `pytest` like follows:
 ```
-TEST_ACCOUNT_NAME='<name>' TEST_ACCOUNT_EMAIL='<email>' TEST_ACCOUNT_ORIGINAL_OU='<original ou id>' ACCOUNT_LAMBDA_FUNCTION_NAME='<name you noted earlier>' OU_LAMBDA_FUNCTION_NAME='<name you noted earlier>' pytest ./handler_tests/<handler>/test.py -rA --capture=sys
+TEST_ACCOUNT_NAME='<name>' TEST_ACCOUNT_EMAIL='<email>' TEST_ACCOUNT_ORIGINAL_OU='<original ou id>' ACCOUNT_LAMBDA_FUNCTION_NAME='<name you noted earlier>' OU_LAMBDA_FUNCTION_NAME='<name you noted earlier>' pytest ./handler_tests/<test file name>.py -rA --capture=sys
 ```
 - Using the name, email, and original OU env variables here allows the test suite to re-use a single test account. Given deleting accounts is not simple you likely dont want to randomly create a new account every time you run tests.
 - The `test.py` also looks up the root org id to run tests so you'll need to have AWS creds set up to accomodate that behavior.
 - You can run the provided tests against the real lambda function by getting the deployed function name from AWS and setting the `RUN_LOCALLY` env variable
 ```
-TEST_ACCOUNT_NAME='<name>' TEST_ACCOUNT_EMAIL='<email>' TEST_ACCOUNT_ORIGINAL_OU='<original ou id>' RUN_LOCALLY='false' ACCOUNT_LAMBDA_FUNCTION_NAME='<name you noted earlier>' OU_LAMBDA_FUNCTION_NAME='<name from AWS>' pytest ./handler_tests/<handler>/test.py -rA --capture=sys
+TEST_ACCOUNT_NAME='<name>' TEST_ACCOUNT_EMAIL='<email>' TEST_ACCOUNT_ORIGINAL_OU='<original ou id>' RUN_LOCALLY='false' ACCOUNT_LAMBDA_FUNCTION_NAME='<name you noted earlier>' OU_LAMBDA_FUNCTION_NAME='<name from AWS>' pytest ./handler_tests/<test file name>.py -rA --capture=sys
 ```
 
 ## Why can't I move an OU?
