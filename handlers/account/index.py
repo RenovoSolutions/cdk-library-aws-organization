@@ -2,6 +2,9 @@ import boto3
 import botocore
 from time import sleep
 
+class AccountNotFoundException(Exception):
+  pass
+
 def search_ou_for_account(ou, name, email):
   client = boto3.client('organizations')
   print(f'Looking for account ({name}) in OU: {ou["Name"]}')
@@ -53,7 +56,7 @@ def get_account_id(name, email):
           if account['Name'] == name and account['Email'] == email:
               return [account['Id'], root, root['Name']]
 
-    raise Exception('AccountNotFoundException')
+    raise AccountNotFoundException('The account you are trying to get an id for ({}) does not exist.'.format(name))
   
 def check_account_creation_status(create_id):
   client = boto3.client('organizations')
@@ -146,80 +149,87 @@ def on_create(event, import_on_duplicate=False, allow_move=False):
           raise Exception('Account already exists, but in a different OU, will NOT import: {} exists in {} ({})'.format(existing_account_info[0], existing_account_info[2], existing_account_info[1]))
     else:
       raise Exception('Account already exists, will NOT import: {} exists in {} ({})'.format(existing_account_info[0], existing_account_info[2], existing_account_info[1]))
-  except Exception as e:
-    if e.value == 'AccountNotFoundException':
-      print('No existing account found with these properties ({}, {}), sending new account creation request'.format(event['ResourceProperties']['Name'], event['ResourceProperties']['Email']))
-      client = boto3.client('organizations')
-      retries = 10
-      tries = 1
-      while tries <= retries:
-        try:
-          response = client.create_account(
-            Email=event['ResourceProperties']['Email'],
-            AccountName=event['ResourceProperties']['Name'],
-          )
-          break
-        except botocore.exceptions.ClientError as e:
-          if e.response['Error']['Code'] == 'ConcurrentModificationException':
-            print('ConcurrentModificationException while creating account {}, retrying... ({}/{})'.format(event['ResourceProperties']['Name'], tries, retries))
-            sleep(2)
-            tries += 1
-            if tries > retries:
-              raise e
-            continue
-          else:
+  except AccountNotFoundException as e:
+    print('No existing account found with these properties ({}, {}), sending new account creation request'.format(event['ResourceProperties']['Name'], event['ResourceProperties']['Email']))
+    client = boto3.client('organizations')
+    retries = 10
+    tries = 1
+    while tries <= retries:
+      try:
+        response = client.create_account(
+          Email=event['ResourceProperties']['Email'],
+          AccountName=event['ResourceProperties']['Name'],
+        )
+        break
+      except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'ConcurrentModificationException':
+          print('ConcurrentModificationException while creating account {}, retrying... ({}/{})'.format(event['ResourceProperties']['Name'], tries, retries))
+          sleep(2)
+          tries += 1
+          if tries > retries:
             raise e
-          
-      creation_id = response['CreateAccountStatus']['Id']
+          continue
+        else:
+          raise e
+        
+    creation_id = response['CreateAccountStatus']['Id']
+    create_status = check_account_creation_status(creation_id)
+    while create_status['State'] == 'IN_PROGRESS':
+      print(f'Waiting for account creation request ({response["CreateAccountStatus"]["Id"]}) to finish. (Sleeping 5 seconds)')
+      sleep(5)
       create_status = check_account_creation_status(creation_id)
-      while create_status['State'] == 'IN_PROGRESS':
-        print(f'Waiting for account creation request ({response["CreateAccountStatus"]["Id"]}) to finish. (Sleeping 5 seconds)')
-        sleep(5)
-        create_status = check_account_creation_status(creation_id)
-          
-      if create_status['State'] == 'FAILED':
-        raise Exception('Account creation failed: {}'.format(create_status["FailureReason"]))
-      if create_status['State'] == 'SUCCEEDED':
-        print('Account created: {}'.format(create_status["AccountId"]))
-        print('Moving account to OU: {}'.format(event["ResourceProperties"]["Parent"]))
-        roots = client.list_roots()['Roots']
-        for root in roots:
-          if root['Id'] == event['ResourceProperties']['Parent']:
-            print('Account already in expected OU: {} ({})'.format(root["Name"], root["Id"]))
-          else:
-            retries = 10
-            tries = 1
-            while tries <= retries:
-              try:
-                response = client.move_account(
-                  AccountId=create_status['AccountId'],
-                  SourceParentId=root['Id'],
-                  DestinationParentId=event['ResourceProperties']['Parent']
-                )
-                break
-              except botocore.exceptions.ClientError as e:
-                if e.response['Error']['Code'] == 'ConcurrentModificationException':
-                  print('ConcurrentModificationException while moving account {}, retrying... ({}/{})'.format(create_status['AccountId'], tries, retries))
-                  sleep(2)
-                  tries += 1
-                  if tries > retries:
-                    raise e
-                  continue
-                else:
-                  raise e
-            
-            print('Account moved to OU: {} ({})'.format(root["Name"], root["Id"]))
-            msg = 'Account created with id {} and moved to OU {}'.format(create_status['AccountId'], root["Id"])
-            print(msg)
-            return {
-              'PhysicalResourceId': create_status['AccountId'],
-              'Data': {
-                'Message': msg
-              }
+        
+    if create_status['State'] == 'FAILED':
+      raise Exception('Account creation failed: {}'.format(create_status["FailureReason"]))
+    if create_status['State'] == 'SUCCEEDED':
+      print('Account created: {}'.format(create_status["AccountId"]))
+      print('Moving account to OU: {}'.format(event["ResourceProperties"]["Parent"]))
+      roots = client.list_roots()['Roots']
+      for root in roots:
+        if root['Id'] == event['ResourceProperties']['Parent']:
+          print('Account already in expected OU: {} ({})'.format(root["Name"], root["Id"]))
+          msg = 'Account created with id {} and was not moved.'.format(create_status['AccountId'])
+          return {
+            'PhysicalResourceId': create_status['AccountId'],
+            'Data': {
+              'Message': msg
             }
-      raise Exception(f'Unknown account creation status: {create_status["State"]}')
-    else:
-      raise e
+          }
+        else:
+          retries = 10
+          tries = 1
+          while tries <= retries:
+            try:
+              response = client.move_account(
+                AccountId=create_status['AccountId'],
+                SourceParentId=root['Id'],
+                DestinationParentId=event['ResourceProperties']['Parent']
+              )
+              break
+            except botocore.exceptions.ClientError as e:
+              if e.response['Error']['Code'] == 'ConcurrentModificationException':
+                print('ConcurrentModificationException while moving account {}, retrying... ({}/{})'.format(create_status['AccountId'], tries, retries))
+                sleep(2)
+                tries += 1
+                if tries > retries:
+                  raise e
+                continue
+              else:
+                raise e
+          
+          print('Account moved to OU: {} ({})'.format(root["Name"], root["Id"]))
+          msg = 'Account created with id {} and moved to OU {}'.format(create_status['AccountId'], root["Id"])
+          print(msg)
+          return {
+            'PhysicalResourceId': create_status['AccountId'],
+            'Data': {
+              'Message': msg
+            }
+          }
+    raise Exception(f'Unknown account creation status: {create_status["State"]}')
+  except Exception as e:
+    print('An unknown error has occurred: {}'.format(e))
+    raise e
       
 def on_update(event, allow_move=False):
   client = boto3.client('organizations')
