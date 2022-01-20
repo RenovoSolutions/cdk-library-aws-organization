@@ -19,7 +19,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "ca6ae8f882accddb008be9ed1b83f11112822b59efb10fe562c9443d2447df47.zip",
+          "S3Key": "d78fc0bfdecc7de904c9c38b44be9cd5d710f2c9d9f2a83226c39dad70f336d0.zip",
         },
       },
       "Type": "AWS::Lambda::LayerVersion",

@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import * as path from 'path';
 import {
   custom_resources,
@@ -408,10 +409,20 @@ export class IPAMAdministratorProvider extends Construct {
       code: lambda.Code.fromAsset(path.join(__dirname, '../handlers/boto3layer'), {
         bundling: {
           image: lambda.Runtime.PYTHON_3_9.bundlingImage,
-          command: [
-            'bash', '-c',
-            'pip install -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python',
-          ],
+          command: [],
+          local: {
+            tryBundle(outputDir: string) {
+              try {
+                execSync('pip3 --version');
+              } catch {
+                return false;
+              }
+
+              execSync(`pip install -r ${path.join(__dirname, '../handlers/boto3layer/requirements.txt')} -t ${path.join(outputDir)}`);
+              execSync(`cp -au ${path.join(__dirname, '../handlers/boto3layer/*')} ${path.join(outputDir)}`);
+              return true;
+            },
+          },
         },
       }),
       compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
