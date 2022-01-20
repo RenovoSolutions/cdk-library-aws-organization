@@ -12,7 +12,7 @@ This CDK library is a WIP and not ready for production use.
 - You will either want a previously created test account or allow the tests to create a new account
 
 **Testing**
-- Create a test project that utilizes this library
+- Create a test project that utilizes this library (you can use a development version by utilizing `yarn link`, but note you might need to set a static dependency for CDK versions or `constructs` in the local app or you'll get errors about mismatched object types)
 - Create a test stack
 - Synthesize the test stack with `cdk synth --no-staging > template.yml`
 - Get the handler function names from the template

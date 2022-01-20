@@ -1,0 +1,15 @@
+{
+  "RequestType": "Update",
+  "ResponseURL": "http://pre-signed-S3-url-for-response",
+  "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/stack-name/guid",
+  "RequestId": "unique id for this update request",
+  "LogicalResourceId": "TestResource",
+  "ResourceType": "AWS::CloudFormation::CustomResource",
+  "PhysicalResourceId": "123456789012",
+  "ResourceProperties": {
+    "DelegatedAdminAccountId": "123456789012"
+  },
+  "OldResourceProperties": {
+    "DelegatedAdminAccountId": "123456789013"
+  }
+}
