@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import * as path from 'path';
 import {
   custom_resources,
@@ -383,5 +384,126 @@ export class OrganizationAccount extends Construct {
     if (props.parent instanceof OrganizationOU) {
       this.resource.node.addDependency(props.parent);
     };
+  }
+}
+
+/**
+ * The properties of an IPAM administrator custom resource provider.
+ */
+export interface IPAMAdministratorProviderProps {
+  /**
+   * The role the custom resource should use for working with the IPAM administrator delegation if one is not provided one will be created automatically
+   */
+  readonly role?: iam.IRole;
+}
+
+export class IPAMAdministratorProvider extends Construct {
+
+  public readonly provider: custom_resources.Provider;
+
+  constructor(scope: Construct, id: string, props: IPAMAdministratorProviderProps) {
+    super(scope, id);
+
+    // Need updated Boto3 to support IPAM
+    const boto3Layer = new lambda.LayerVersion(this, 'boto3Layer', {
+      code: lambda.Code.fromAsset(path.join(__dirname, '../handlers/boto3layer'), {
+        bundling: {
+          image: lambda.Runtime.PYTHON_3_9.bundlingImage,
+          command: [],
+          local: {
+            tryBundle(outputDir: string) {
+              try {
+                execSync('pip3 --version');
+              } catch {
+                return false;
+              }
+
+              execSync(`pip install -r ${path.join(__dirname, '../handlers/boto3layer/requirements.txt')} -t ${path.join(outputDir)}`);
+              execSync(`cp -au ${path.join(__dirname, '../handlers/boto3layer/*')} ${path.join(outputDir)}`);
+              return true;
+            },
+          },
+        },
+      }),
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
+    });
+
+    let role: iam.IRole;
+
+    if (!props.role) {
+      role = new iam.Role(this, 'role', {
+        assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      });
+
+      let policy = new iam.ManagedPolicy(this, 'policy', {
+        statements: [
+          new iam.PolicyStatement({
+            actions: [
+              'ec2:EnableIpamOrganizationAdminAccount',
+              'organizations:EnableAwsServiceAccess',
+              'organizations:RegisterDelegatedAdministator',
+              'iam:CreateServiceLinkedRole',
+            ],
+            resources: ['*'],
+          }),
+        ],
+      });
+
+      role.addManagedPolicy(policy);
+      role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
+    } else {
+      role = props.role;
+    }
+
+    const handlersPath = path.join(__dirname, '../handlers');
+
+    const onEvent = new lambda.Function(this, 'handler', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      code: lambda.Code.fromAsset(handlersPath + '/ipamadmin'),
+      handler: 'index.on_event',
+      timeout: Duration.seconds(300),
+      role,
+      layers: [boto3Layer],
+    });
+
+    this.provider = new custom_resources.Provider(this, 'provider', {
+      onEventHandler: onEvent,
+      logRetention: logs.RetentionDays.ONE_DAY,
+    });
+  }
+}
+
+/**
+ * The properties of an OrganizationAccount custom resource.
+ */
+export interface IPAMAdministratorProps {
+  /**
+   * The account id of the IPAM administrator
+   */
+  readonly delegatedAdminAccountId: string;
+  /**
+   * The provider to use for the custom resource that will handle IPAM admin delegation. You can create a provider with the IPAMAdministratorProvider class
+   */
+  readonly provider: custom_resources.Provider;
+}
+
+/**
+ * The construct to create or update the delegated IPAM administrator for an organization
+ *
+ * This relies on the custom resource provider IPAMAdministratorProvider.
+*/
+export class IPAMdministrator extends Construct {
+
+  public readonly resource: CustomResource;
+
+  constructor(scope: Construct, id: string, props: IPAMAdministratorProps) {
+    super(scope, id);
+
+    this.resource = new CustomResource(this, 'ipamAdmin', {
+      serviceToken: props.provider.serviceToken,
+      properties: {
+        DelegatedAdminAccountId: props.delegatedAdminAccountId,
+      },
+    });
   }
 }

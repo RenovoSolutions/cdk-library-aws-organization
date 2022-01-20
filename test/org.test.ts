@@ -5,6 +5,8 @@ import {
   OUObject,
   processOUObj,
   OrganizationAccountProvider,
+  IPAMAdministratorProvider,
+  IPAMdministrator,
 } from '../src/index';
 
 test('Snapshot', () => {
@@ -13,6 +15,7 @@ test('Snapshot', () => {
 
   const ouProvider = new OrganizationOUProvider(stack, 'OrganizationOUProvider', {}).provider;
   const accountProvider = new OrganizationAccountProvider(stack, 'OrganizationAccountProvider', {}).provider;
+  const ipamProvider = new IPAMAdministratorProvider(stack, 'IPAMAdministratorProvider', {}).provider;
 
   const orgStructure: OUObject[] = [
     {
@@ -41,6 +44,11 @@ test('Snapshot', () => {
 
   orgStructure.forEach(obj => {
     processOUObj.call(stack, ouProvider, accountProvider, obj, 'r-a1b2');
+  });
+
+  new IPAMdministrator(stack, 'IPAMAdministrator', {
+    provider: ipamProvider,
+    delegatedAdminAccountId: '123456789012',
   });
 
   expect(Template.fromStack(stack)).toMatchSnapshot();

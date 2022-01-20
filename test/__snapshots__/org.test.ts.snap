@@ -10,6 +10,233 @@ Object {
     },
   },
   "Resources": Object {
+    "IPAMAdministratorProviderboto3Layer1B6FCCE6": Object {
+      "Properties": Object {
+        "CompatibleRuntimes": Array [
+          "python3.9",
+        ],
+        "Content": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "d78fc0bfdecc7de904c9c38b44be9cd5d710f2c9d9f2a83226c39dad70f336d0.zip",
+        },
+      },
+      "Type": "AWS::Lambda::LayerVersion",
+    },
+    "IPAMAdministratorProviderhandlerD22F93F1": Object {
+      "DependsOn": Array [
+        "IPAMAdministratorProviderroleBA494714",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8648a71cdeca84a32e80550a790e08a6f92416cb8203d070067be77b6e984982.zip",
+        },
+        "Handler": "index.on_event",
+        "Layers": Array [
+          Object {
+            "Ref": "IPAMAdministratorProviderboto3Layer1B6FCCE6",
+          },
+        ],
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "IPAMAdministratorProviderroleBA494714",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.9",
+        "Timeout": 300,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "IPAMAdministratorProviderpolicy661939F1": Object {
+      "Properties": Object {
+        "Description": "",
+        "Path": "/",
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "ec2:EnableIpamOrganizationAdminAccount",
+                "organizations:EnableAwsServiceAccess",
+                "organizations:RegisterDelegatedAdministator",
+                "iam:CreateServiceLinkedRole",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::ManagedPolicy",
+    },
+    "IPAMAdministratorProviderproviderframeworkonEvent71C8849F": Object {
+      "DependsOn": Array [
+        "IPAMAdministratorProviderproviderframeworkonEventServiceRoleDefaultPolicyF2740871",
+        "IPAMAdministratorProviderproviderframeworkonEventServiceRole89DD5A78",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "598fb6cff8e638be6d00a6a4d728d795cc8f563ff24122bb1ab518c1530e24d8.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (TestStack/IPAMAdministratorProvider/provider)",
+        "Environment": Object {
+          "Variables": Object {
+            "USER_ON_EVENT_FUNCTION_ARN": Object {
+              "Fn::GetAtt": Array [
+                "IPAMAdministratorProviderhandlerD22F93F1",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "IPAMAdministratorProviderproviderframeworkonEventServiceRole89DD5A78",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "IPAMAdministratorProviderproviderframeworkonEventLogRetentionB4BC3F33": Object {
+      "Properties": Object {
+        "LogGroupName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "/aws/lambda/",
+              Object {
+                "Ref": "IPAMAdministratorProviderproviderframeworkonEvent71C8849F",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 1,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::LogRetention",
+    },
+    "IPAMAdministratorProviderproviderframeworkonEventServiceRole89DD5A78": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "IPAMAdministratorProviderproviderframeworkonEventServiceRoleDefaultPolicyF2740871": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "IPAMAdministratorProviderhandlerD22F93F1",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "IPAMAdministratorProviderproviderframeworkonEventServiceRoleDefaultPolicyF2740871",
+        "Roles": Array [
+          Object {
+            "Ref": "IPAMAdministratorProviderproviderframeworkonEventServiceRole89DD5A78",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "IPAMAdministratorProviderroleBA494714": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Ref": "IPAMAdministratorProviderpolicy661939F1",
+          },
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "IPAMAdministratoripamAdmin659D863B": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "DelegatedAdminAccountId": "123456789012",
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "IPAMAdministratorProviderproviderframeworkonEvent71C8849F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
     "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": Object {
       "DependsOn": Array [
         "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
